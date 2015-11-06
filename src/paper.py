@@ -142,6 +142,8 @@ class Paper(Container):
 
                         logging.info("1.2.1 Index similar to parent container index %d up the stack [%r]" % (n, parent_container.index))
 
+                        # If we have found a similar index and they're in sequence, add the question after
+                        # the found container.
                         if parent_container.index.isNext(index):
                             logging.info("1.2.1.1 Index in sequence, pushing into parent container's container.")
                             stack = stack[:n]
@@ -152,7 +154,10 @@ class Paper(Container):
                         else:
                             logging.info("1.2.1.2 Index not in sequence, ignoring")
                             continue
-                    elif index.i == 1 or last_index.is_section:
+                    # If we encounter a new type of index and it's not the start of a new list, we
+                    # can just discard it (it's probably marks). However if the previous index is 
+                    # a section, we can just continue. 
+                    elif index.i == 1 or last_index.is_section: 
                         logging.info("1.2.2 Pushing new question into container %r." % container)
                         container.push(question)
                         stack.append(question)
