@@ -1,4 +1,5 @@
 import slate
+import json
 import logging
 import pyparsing as pp
 
@@ -181,6 +182,10 @@ class Paper(Container):
 
             last_question = question
 
+        # Squeeze out that last part
+        if last_question:
+            last_question.setText(pages[marker:])
+
         logging.info(self)  
 
     def _find_similar(self, stack, start, index):
@@ -222,6 +227,28 @@ class Paper(Container):
                 output += self.to_string(container=item, level=level+1, compact=compact, tab=tab)
 
         return output
+
+    def to_dict(self, container=None, parent={}):
+        if container is None:
+            container = self
+
+        if isinstance(container, Question):
+            question = {}
+
+            if container.text.strip():
+                question["content"] = container.text 
+
+            parent[("section_" if container.index.is_section else "") + str(container.index.value).lower()] = question
+            parent = question
+
+        if isinstance(container, Container):
+            for item in container.contents:
+                self.to_dict(item, parent)
+
+        return parent
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), indent=4)
 
     def __repr__(self):
         return self.to_string()
