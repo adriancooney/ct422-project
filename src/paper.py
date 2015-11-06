@@ -152,7 +152,7 @@ class Paper(Container):
                         else:
                             logging.info("1.2.1.2 Index not in sequence, ignoring")
                             continue
-                    elif index.i == 1:
+                    elif index.i == 1 or last_index.is_section:
                         logging.info("1.2.2 Pushing new question into container %r." % container)
                         container.push(question)
                         stack.append(question)
