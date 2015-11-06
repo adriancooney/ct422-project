@@ -25,10 +25,11 @@ def test_parser_section():
 
 def test_from_pdf():
     paper = Paper.from_pdf(EXAMPLE_PAPER_1)
-
-    print "Paper: %s == '%s'" % (os.path.basename(EXAMPLE_PAPER_1), paper.to_string(compact=True, tab=">"))
-    assert paper.to_string(compact=True, tab=">") == "1,>a,>b,>c,2,>a,>b,>c,3,>a,>b,>c,4,>a,>b,>c,"
-
+    index = paper.to_string(compact=True, tab=">")
+    print "Paper: %s == '%s'" % (os.path.basename(EXAMPLE_PAPER_1), index)
+    assert index == "1,>a,>b,>c,2,>a,>b,>c,3,>a,>b,>c,4,>a,>b,>c,"
 
     paper = Paper.from_pdf(EXAMPLE_PAPER_2)
-    print "Paper: %s == '%s'" % (os.path.basename(EXAMPLE_PAPER_2), paper.to_string(compact=True, tab=">"))
+    index = paper.to_string(compact=True, tab=">")
+    print "Paper: %s == '%s'" % (os.path.basename(EXAMPLE_PAPER_2), index)
+    assert index == "sa,>1,>>i,>>>a,>>>b,>>>c,>>>d,>>>e,>>ii,>>>a,>>>b,>>>c,>>>d,>>>e,>>iii,>>>a,>>>b,>>>c,>>>d,>>iv,>>>a,>>>b,>>>c,>>>d,>>>e,>>v,>>>a,>>>b,>>>c,>>>d,>>vi,>>>a,>>>b,>>>c,>>>d,>>vii,>>>a,>>>b,>>>c,>>>d,>>viii,>>>a,>>>b,>>>c,>>>d,>>ix,>>>a,>>>b,>>>c,>>>d,>>x,>>>a,>>>b,>>>c,>>>d,>>xi,>>>a,>>>b,>>>c,>>>d,>>xii,>>>a,>>>b,>>>c,>>>d,>2,>>i,>>ii,>>iii,>>>a,>>>b,>>>c,>>>d,>>iv,>3,>>i,>>ii,>>iii,>>iv,>>v,>4,>>i,>>ii,>>>a,>>>b,>>>c,>>>d,>>iii,"

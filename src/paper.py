@@ -134,17 +134,17 @@ class Paper(Container):
                         continue
                 else:
                     logging.info("1.2 Dissimilar indexes %s and previous %s." % (index.index_type, last_index.index_type))
-                    parent_container = stack[-2]
+                    
+                    parent_container, n = self._find_similar(stack, -2, index)
 
-                    if (isinstance(parent_container, Question) and
-                        parent_container.index.isSimilar(index)):
+                    # We need to traverse the container tree and see if we can find a similar index
+                    if parent_container:
 
-                        logging.info("1.2.1 Index similar to parent container index [%r]" % parent_container.index)
+                        logging.info("1.2.1 Index similar to parent container index %d up the stack [%r]" % (n, parent_container.index))
 
                         if parent_container.index.isNext(index):
                             logging.info("1.2.1.1 Index in sequence, pushing into parent container's container.")
-                            stack.pop() # Remove the current container
-                            stack.pop() # Remove the parent container
+                            stack = stack[:n]
 
                             container = stack[-1]
                             container.push(question)
@@ -160,7 +160,23 @@ class Paper(Container):
                         logging.info("1.2.3 New index value not first in sequence, ignoring.")
                         continue
 
-        logging.info(self)                   
+        logging.info(self)  
+
+    def _find_similar(self, stack, start, index):
+        """Traverses up the stack finding a container of similar index
+        """ 
+        i = start
+        parent_container = stack[i]
+        while parent_container != None:
+            if isinstance(parent_container, Paper):
+                return (False, 0)
+            elif isinstance(parent_container, Question) and parent_container.index.isSimilar(index):
+                return (parent_container, i)
+            else:
+                i -= 1
+                parent_container = stack[i]
+
+        return (False, 0)
 
     def to_string(self, container=None, level=0, tab="--", compact=False):
         output = (tab * level) + (" " if not compact and level > 0 else "") if tab != None else ""
