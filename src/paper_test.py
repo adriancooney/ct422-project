@@ -37,4 +37,4 @@ def test_from_pdf():
     paper = Paper.from_pdf(EXAMPLE_PAPER_3)
     index = paper.to_string(compact=True, tab=">")
     print "Paper: %s == '%s'" % (os.path.basename(EXAMPLE_PAPER_2), index)
-    assert index == "sa,>1,>>i,>>ii,>>iii,>>iv,>2,>>i,>>ii,>>iii,>3,>>i,>>ii,sb,>4,>>a,>>b,>>c,>>d,>>e,>5,>>i,>>ii,>>>a,>>>b,>>>c,>>iii,>>iv,>6,"
+    assert index == "sa,>1,>>i,>>ii,>>iii,>>iv,>2,>>i,>>ii,>>iii,>3,>>i,>>ii,sb,>4,>>i,>>>a,>>>b,>>>c,>>>d,>>>e,>>ii,>>iii,>>iv,>5,>>i,>>ii,>>>a,>>>b,>>>c,>>iii,>>iv,>6,>>i,>>ii,>>iii,>>iv,"

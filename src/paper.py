@@ -8,9 +8,10 @@ from container import Container
 
 class Paper(Container):
     # Let's define our parser
-    __ = pp.White().suppress()
     _ = (pp.White(exact=1) | pp.LineEnd() | pp.LineStart()).suppress()
+    __ = pp.White().suppress()
     ___ = pp.Optional(__)
+    ____ = pp.Optional(_)
 
     # Define tokens for numerical, alpha and roman indices
     # Max two digits for numerical indices because lecturers aren't psychopaths
@@ -30,7 +31,7 @@ class Paper(Container):
 
     # Define final index token with optional Question token before formatted index
     index = (
-        # Whitespace is required before each index 
+        # Whitespace is required before each index (e.g. "hello world." the d. would be take for an index)
         _ + \
         # Optional "Question." before
         pp.Optional(question + ___).suppress() + \
@@ -104,8 +105,10 @@ class Paper(Container):
 
         stack = [self]
 
+        last_question, marker = None, 0
+
         # Loop over every token we've parsed from the pages
-        for token, u, v in Paper.entry.leaveWhitespace().scanString(pages):
+        for token, start, end in Paper.entry.leaveWhitespace().scanString(pages, overlap=True):
             index = token[0] # The incoming index
             container = stack[-1] # The container is the last item in the stack
 
@@ -113,15 +116,17 @@ class Paper(Container):
 
             question = Question(index)
 
+            # If the container is the paper, just push the question
             if isinstance(container, Paper):
                 logging.info("1. Pushing top level question %r." % question)
                 container.push(question)
                 stack.append(question)
-            elif isinstance(container, Question):
+            else:
                 last_index = container.index
 
                 if index.isSimilar(last_index):
                     logging.info("1.1 Similiar indexes %s and previous %s." % (index.index_type, last_index.index_type))
+
                     if last_index.isNext(index):
                         logging.info("1.1.1 Pushing question with same index type and in sequence.")
                         stack.pop()
@@ -135,6 +140,7 @@ class Paper(Container):
                 else:
                     logging.info("1.2 Dissimilar indexes %s and previous %s." % (index.index_type, last_index.index_type))
                     
+                    # Go through the stack and find the similar index
                     parent_container, n = self._find_similar(stack, -2, index)
 
                     # We need to traverse the container tree and see if we can find a similar index
@@ -150,7 +156,7 @@ class Paper(Container):
 
                             container = stack[-1]
                             container.push(question)
-                            stack.append(question)
+                            stack.append(question) 
                         else:
                             logging.info("1.2.1.2 Index not in sequence, ignoring")
                             continue
@@ -164,6 +170,16 @@ class Paper(Container):
                     else:
                         logging.info("1.2.3 New index value not first in sequence, ignoring.")
                         continue
+
+            # Save the text
+            if last_question != None:
+                last_question.setText(pages[marker:start])
+                last_question = None
+                marker = end
+            elif marker == 0:
+                marker = end
+
+            last_question = question
 
         logging.info(self)  
 
@@ -195,6 +211,9 @@ class Paper(Container):
                 output += "s" + str(container.index.value).lower()
             else:
                 output += str(container.index.value).lower()
+
+            if not compact and container.text != None:
+                output += "\n" + (level * "  ") + container.text
 
             output += "," if compact else "\n"
 
