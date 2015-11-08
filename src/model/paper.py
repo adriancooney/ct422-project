@@ -3,11 +3,15 @@ import json
 import logging
 import pyparsing as pp
 
-from index import Index
-from question import Question
-from container import Container
+from parsing.index import Index
+from parsing.question import Question
+from parsing.container import Container
 
-class Paper(Container):
+from base import Base
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey
+
+class Paper(Container, Base):
     # Let's define our parser
     _ = (pp.White(exact=1) | pp.LineEnd() | pp.LineStart()).suppress()
     __ = pp.White().suppress()
@@ -50,11 +54,31 @@ class Paper(Container):
     # Entry point for the parser
     entry = section ^ index
 
-    def __init__(self, document=None):
+    # ORM
+    __tablename__ = "paper"
+
+    id = Column(Integer, primary_key=True)
+    module = Column(Integer, ForeignKey("module.id"))
+    name = Column(String)
+    period = Column(String)
+    sitting = Column(String)
+    year_start = Column(Integer)
+    year_stop = Column(Integer)
+    link = Column(String)
+
+    def __init__(self, module, name, period, sitting, year_start, year_stop, link, document=None):
         """The Paper class describes a Exam paper.
         
         Here we parse questions and store them in a neat array.
         """
+
+        self.module = module
+        self.name = name
+        self.period = period
+        self.sitting = sitting
+        self.year_start = year_start
+        self.year_stop = year_stop
+        self.link = link
 
         Container.__init__(self)
 
