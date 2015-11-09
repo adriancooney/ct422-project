@@ -25,7 +25,7 @@ class Parser:
 
     # Define tokens for formatted indices e.g [a], (1), ii. etc.
     index_dotted = (index_type + pp.Literal(".").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("dotted"))
-    index_round_brackets = (pp.Literal("(").suppress() + index_type + pp.Literal(")").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("round"))
+    index_round_brackets = (pp.Optional(pp.Literal("(")).suppress() + index_type + pp.Literal(")").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("round"))
     index_square_brackets = (pp.Literal("[").suppress() + index_type + pp.Literal("]").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("square"))
     index_question = (pp.Word("qQ", exact=1).suppress() + pp.Optional(".").suppress() + index_type + pp.Optional(".").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("question"))
 
