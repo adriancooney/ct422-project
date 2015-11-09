@@ -8,4 +8,4 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     code = Column(String, unique=True)
-    modules = relationship("Module")
+    modules = relationship("Module", backref="category")
