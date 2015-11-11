@@ -1,4 +1,4 @@
-"""This script downloads all the papers from mis.nuigalway.ie
+"""This script creates a database of all the mis.nuigalway.ie exam papers
 """
 
 import os

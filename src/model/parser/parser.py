@@ -159,6 +159,11 @@ class Parser:
         if last_question:
             last_question.setText(pages[marker:])
 
+        # Test to see if we have any data returned. For now,
+        # we'll assume it's "unparsable" if not content if found.
+        if len(root.contents) == 0:
+            raise UnparseableException()
+
         return root
 
     @staticmethod
@@ -233,3 +238,6 @@ class Parser:
     def to_JSON(contents):
         """Converts the paper to a json"""
         return json.dumps(Parser.to_dict(contents), indent=4)
+
+class UnparseableException(Exception):
+    pass

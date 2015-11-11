@@ -1,11 +1,12 @@
-from parser import Parser
-from .. import Paper, Module
+from pytest import raises
+from parser import Parser, UnparseableException
+from .. import Paper, Module, PaperPDF
 from ...config import Session
 import logging
 import os
 import slate
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 # Grab a paper
 session = Session()
@@ -47,6 +48,8 @@ def test_from_pdf():
             print "Paper: %s == '%s'" % (os.path.basename(paper_path), index)
             assert index == expected
 
-# def test_download():
-#     paper.download_and_parse("/tmp")
-#     print paper
+def test_unparsable():
+    with raises(UnparseableException):
+        with open(os.path.join(os.path.dirname(__file__), "../../../data/CT422-1-2013-2014-2-Autumn.pdf")) as pdf:
+            pages = slate.PDF(pdf)
+            Parser.parse_pages(pages[1:])

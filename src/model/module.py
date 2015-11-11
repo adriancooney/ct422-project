@@ -1,6 +1,10 @@
+import json
+import logging
+import itertools
+from paper import NoLinkException, UnparseableException, PaperNotFound
 from base import Base
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship, Session
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 
 class Module(Base):
     __tablename__ = "module"
@@ -9,18 +13,53 @@ class Module(Base):
     code = Column(String, unique=True)
     name = Column(String)
     category_id = Column(Integer, ForeignKey('module_category.id'))
+    is_indexed = Column(Boolean, default=False)
     papers = relationship("Paper", backref="module")
 
-    def download_papers(self, path):
-        papers = []
+    def index(self):
+        if self.is_indexed:
+            return
+
         for paper in self.papers:
             try:
-                papers.append(paper.download(path))
-            except ValueError:
-                # Ignore papers who don't have links
-                pass
+                paper.index()
+            except NoLinkException:
+                logging.info("No link for paper %r" % paper)
+            except UnparseableException:
+                logging.warning("Unable to parse paper %r" % paper)
+            except PaperNotFound:
+                logging.warning("Paper %r not found." % paper)
 
-        return papers
+        self.is_indexed = True
 
-    # def build_index(self):
-        # for paper in self.papers:
+        session = Session.object_session(self)
+        session.add(self)
+        session.commit()
+
+    def to_dict(self):
+        data = {}
+
+        # First of all, organize the papers by year
+        for paper in self.papers:
+            # Skip papers that we couldn't parse
+            if not paper.contents:
+                continue
+
+            year = str(paper.year_start)
+
+            # We use year start as the key
+            if not year in data:
+                data[year] = []
+
+            data[year].append(paper.contents)
+
+        return { self.code: data }
+
+    def to_JSON(self):
+        return json.dumps(self.to_dict(), indent=4)
+
+    def __repr__(self):
+        return "<Module(id={}, code={}, papers={})>".format(self.id, self.code, len(self.papers))
+
+    def count_question(**args):
+        pass
