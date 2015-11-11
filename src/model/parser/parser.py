@@ -209,23 +209,49 @@ class Parser:
     def to_dict(container, parent={}):
         """Convert the parsed paper to a dict. e.g.
 
-        {
-            'a': {
-                'content': 'Answer all the following questions',
-                'i': { 'content': 'How big is a cow?' },
-                'ii': { 'content': 'How long is a string' },
-                'iii': { 'content': 'How crispy is a potato?' }
-            }
-        }
+        "children": [
+            {
+                "index": "1",
+                "children": [
+                    {
+                        "content": "Describe ...",
+                        "index": "i"
+                    },
+                    {
+                        "content": "Explain ...",
+                        "index": "ii"
+                    },
+                    {
+                        "content": "Assuming ...",
+                        "index": "iii",
+                        "children": [
+                            {
+                                "content": "This ...",
+                                "index": "a"
+                            },
+                            ...
+                        ]
+                    }
+                ]
+            },
+            ...
+        ]
         """
+        if not "children" in parent:
+            parent["children"] = []
 
         if isinstance(container, Question):
             question = {}
 
+            if container.index.is_section:
+                question["section"] = True
+
+            question["index"] = str(container.index.value)
+
             if container.text.strip():
                 question["content"] = container.text 
 
-            parent[("section_" if container.index.is_section else "") + str(container.index.value).lower()] = question
+            parent["children"].append(question)
             parent = question
 
         if isinstance(container, Container):

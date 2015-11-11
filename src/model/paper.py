@@ -105,7 +105,7 @@ class Paper(Base):
             id=self.id, module=self.module.code, year_start=self.year_start, year_stop=self.year_stop,
             sitting=self.sitting, link=(self.link != None))
 
-    def get_question(**args, **kwargs):
+    def get_question(*args, **kwargs):
         """Get a questions contents from a paper. If none available, return the nearest estimate
         to question path. All this function really does is smartly traverse the document tree ignoring
         sections and such.
@@ -132,6 +132,29 @@ class Paper(Base):
         """
 
         strict = False if not kwargs['strict'] else kwargs['strict']
+
+    def get_questions(self):
+        """This methods returns a list of all the questions in the form of:
+
+            (Paper, (question_path), content)
+            (<Paper(id=1)>, (1, 2, 1), "<question document>")"""
+
+        if not self.contents:
+            raise RuntimeError("%r has no contents." % self)
+
+        def flatten(question, path=""):
+            qs = []
+
+            if "content" in question:
+                qs.append((path, question["content"]))
+
+            if "children" in question:
+                for i, child in enumerate(question["children"]):
+                    qs += flatten(child, path + str(i))
+
+            return qs
+
+        return flatten(self.contents)
 
 class NoLinkException(Exception):
     pass

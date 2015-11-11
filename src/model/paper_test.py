@@ -3,9 +3,15 @@ from ..config import Session
 
 # Grab a paper
 session = Session()
-paper = session.query(Paper).filter(Paper.id == 3907).first()
 
-def test_index():
-    Paper.PAPER_DIR = "/tmp"
+# def test_index():
+#     paper = session.query(Paper).filter(Paper.id == 3907).first()
 
-    paper.index()
+#     Paper.PAPER_DIR = "/tmp"
+
+#     paper.index()
+
+def test_feature_extraction():
+    paper = session.query(Paper).filter(Paper.id == 3720).first()
+
+    paper.vectorize()

@@ -1,9 +1,13 @@
 import json
 import logging
 import itertools
+
+from pandas import DataFrame, concat
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from paper import NoLinkException, UnparseableException, PaperNotFound
 from base import Base
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, reconstructor
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 
 class Module(Base):
@@ -16,8 +20,14 @@ class Module(Base):
     is_indexed = Column(Boolean, default=False)
     papers = relationship("Paper", backref="module")
 
-    def index(self):
-        if self.is_indexed:
+    @reconstructor
+    def init_load(self):
+        self.questions = None
+        self.vectorizer = None
+        self.tfidf = None
+
+    def index(self, force=False):
+        if not force and self.is_indexed:
             return
 
         for paper in self.papers:
@@ -61,5 +71,48 @@ class Module(Base):
     def __repr__(self):
         return "<Module(id={}, code={}, papers={})>".format(self.id, self.code, len(self.papers))
 
-    def count_question(**args):
-        pass
+    def get_questions(self):
+        """This methods returns a list of all the questions in the form of:
+
+            (Paper, (question_path), content)
+            (<Paper(id=1)>, (1, 2, 1), "<question document>")"""
+
+        def flatten(paper, question, path=()):
+            qs = []
+
+            if "content" in question:
+                qs.append((paper, path, question["content"]))
+
+            if "children" in question:
+                for i, child in enumerate(question["children"]):
+                    qs += flatten(paper, child, path + (i,))
+
+            return qs
+
+        questions = []
+        for paper in self.papers:
+            if paper.contents:
+                questions += [(paper,) + question for question in paper.get_questions()]
+
+        return DataFrame(questions, columns=["Paper", "Path", "Content"])
+
+    def vectorize(self):
+        self.questions = self.get_questions()
+        self.vectorizer = TfidfVectorizer()
+        self.tfidf = self.vectorizer.fit_transform(self.questions["Content"])
+
+    def find_similar_questions(self, paper, path):
+        if not self.vectorizer:
+            self.vectorize()
+
+        def is_question(i):
+            question = self.questions.iloc[i]
+            return question["Path"] == path and question["Paper"] == paper
+
+        question = self.questions.select(is_question)
+        question_index = question.index[0]
+
+        similarity = DataFrame(cosine_similarity(self.tfidf[question_index:question_index+1], self.tfidf)[0], columns=["Similarity"])
+        joined = concat([self.questions, similarity], axis=1)
+
+        return joined.sort(["Similarity"], ascending=False)
