@@ -2,6 +2,7 @@ import json
 import logging
 import itertools
 
+import pandas as pd
 from pandas import DataFrame, concat
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -11,6 +12,8 @@ from sqlalchemy.orm import relationship, Session, reconstructor
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 
 class Module(Base):
+    SIMILARITY_THRESHOLD = 0.7
+
     __tablename__ = "module"
 
     id = Column(Integer, primary_key=True)
@@ -77,18 +80,6 @@ class Module(Base):
             (Paper, (question_path), content)
             (<Paper(id=1)>, (1, 2, 1), "<question document>")"""
 
-        def flatten(paper, question, path=()):
-            qs = []
-
-            if "content" in question:
-                qs.append((paper, path, question["content"]))
-
-            if "children" in question:
-                for i, child in enumerate(question["children"]):
-                    qs += flatten(paper, child, path + (i,))
-
-            return qs
-
         questions = []
         for paper in self.papers:
             if paper.contents:
@@ -109,10 +100,72 @@ class Module(Base):
             question = self.questions.iloc[i]
             return question["Path"] == path and question["Paper"] == paper
 
+        # Grab the question we have to find similar for's index
         question = self.questions.select(is_question)
         question_index = question.index[0]
 
-        similarity = DataFrame(cosine_similarity(self.tfidf[question_index:question_index+1], self.tfidf)[0], columns=["Similarity"])
+        # Compute the similarity
+        cs = cosine_similarity(self.tfidf[question_index:question_index+1], self.tfidf)
+        similarity = DataFrame(cs[0], columns=["Similarity"])
+
+        # Join the similirity onto the questions datafame
         joined = concat([self.questions, similarity], axis=1)
 
-        return joined.sort(["Similarity"], ascending=False)
+        return joined.sort_values(["Similarity"], ascending=False)
+
+    def similarity_analysis(self, paper):
+        """Perform a similarity analysis over all the questions in paper"""
+        analysis = []
+        for question, contents in paper.get_questions():
+            logging.info("Perform similarity analysis on question %s '%s..'" % (question, contents[:30]))
+
+            similar_questions = self.find_similar_questions(paper, question)
+            similar_relevant = similar_questions[similar_questions["Similarity"] > Module.SIMILARITY_THRESHOLD]
+
+            p = []
+            for i, row in similar_relevant.iterrows():
+                npaper = row["Paper"]
+
+                # Prevent similarity analysis on same paper
+                if npaper == paper:
+                    continue
+
+                data = {
+                    'id': npaper.id,
+                    'years': [npaper.year_start, npaper.year_stop],
+                    'name': npaper.name,
+                    'sitting': npaper.sitting,
+                    'period': npaper.period,
+                    'similarity': row["Similarity"],
+                    'question': row["Path"]
+                }
+
+                p.append(data)
+
+            breakdown = {
+                'content': contents,
+                'question': question,
+                'papers': p
+            }
+
+            analysis.append(breakdown)
+
+        return {
+            'module': self.code,
+            'analysis': analysis
+        }
+
+    def latest_similarity_analysis(self):
+        """Perform similarity analysis on the latest paper"""
+        def latest(x, y):
+            if x.year_stop > y.year_stop:
+                return -1
+            elif x.year_stop < y.year_stop:
+                return 1
+            else:
+                return 0
+
+        sorted_papers = sorted(self.papers, latest)
+        latest_paper = sorted_papers[0]
+
+        return self.similarity_analysis(latest_paper)

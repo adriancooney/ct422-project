@@ -142,7 +142,7 @@ class Paper(Base):
         if not self.contents:
             raise RuntimeError("%r has no contents." % self)
 
-        def flatten(question, path=""):
+        def flatten(question, path=()):
             qs = []
 
             if "content" in question:
@@ -150,7 +150,7 @@ class Paper(Base):
 
             if "children" in question:
                 for i, child in enumerate(question["children"]):
-                    qs += flatten(child, path + str(i))
+                    qs += flatten(child, path + (i,))
 
             return qs
 
