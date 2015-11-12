@@ -7,8 +7,6 @@ app = Flask(__name__)
 
 session = Session()
 
-Paper.PAPER_DIR = "/Users/adrian/Downloads/exam_papers"
-
 def fail(code, message):
     """Fail a request in a standard way."""
     response = flask.jsonify({
