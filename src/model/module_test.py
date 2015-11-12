@@ -33,4 +33,4 @@ session = Session()
 def test_latest_analysis():
     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 
-    ct422.latest_similarity_analysis()
+    ct422.latest_similarity_analysis(groupByYear=True)

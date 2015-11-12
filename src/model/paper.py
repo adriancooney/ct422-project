@@ -105,7 +105,7 @@ class Paper(Base):
             id=self.id, module=self.module.code, year_start=self.year_start, year_stop=self.year_stop,
             sitting=self.sitting, link=(self.link != None))
 
-    def get_question(*args, **kwargs):
+    def get_question(self, *args):
         """Get a questions contents from a paper. If none available, return the nearest estimate
         to question path. All this function really does is smartly traverse the document tree ignoring
         sections and such.
@@ -120,18 +120,29 @@ class Paper(Base):
 
                     paper.get_question(1, 1, 2)
 
-            strict: (default: False)
-                Strictly traverse the question tree. If no question is found under the
-                exact path a `NoQuestionError` is raised.
-
-        Raises:
-            NoQuestionError: If strict=True and path does not lead to a question.
-
         Returns:
             str: The content of the question
         """
 
-        strict = False if not kwargs['strict'] else kwargs['strict']
+        if not self.contents:
+            return None
+
+        question = None
+        children = self.contents["children"]
+        path = list(args)
+
+        while path:
+            i = path.pop(0)
+
+            try:
+                question = children[i]
+
+                if "children" in question:
+                    children = question["children"]
+            except IndexError:
+                break
+
+        return question
 
     def get_questions(self):
         """This methods returns a list of all the questions in the form of:
@@ -155,6 +166,18 @@ class Paper(Base):
             return qs
 
         return flatten(self.contents)
+
+    def is_indexed(self):
+        return bool(self.contents) or bool(self.pdf)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'years': [self.year_start, self.year_stop],
+            'name': self.name,
+            'sitting': self.sitting,
+            'period': self.period
+        }
 
 class NoLinkException(Exception):
     pass

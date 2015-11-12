@@ -3,6 +3,7 @@ import logging
 import itertools
 
 import pandas as pd
+from itertools import groupby
 from pandas import DataFrame, concat
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -130,15 +131,10 @@ class Module(Base):
                 if npaper == paper:
                     continue
 
-                data = {
-                    'id': npaper.id,
-                    'years': [npaper.year_start, npaper.year_stop],
-                    'name': npaper.name,
-                    'sitting': npaper.sitting,
-                    'period': npaper.period,
-                    'similarity': row["Similarity"],
-                    'question': row["Path"]
-                }
+                data = npaper.to_dict()
+
+                data['similarity'] = row["Similarity"]
+                data['question'] = row["Path"]
 
                 p.append(data)
 
@@ -155,7 +151,22 @@ class Module(Base):
             'analysis': analysis
         }
 
-    def latest_similarity_analysis(self):
+    def similarity_analysis_by_year(self, paper):
+        analysis = self.similarity_analysis(paper)
+
+        for question in analysis["analysis"]:
+            papers = question["papers"]
+
+            # Sort the papers first by year
+            papers.sort(key=lambda p: p["years"][0])
+
+            # Group by papers
+            question["papers"] = { key: [record for record in group] for key, group in groupby(papers, lambda p: p["years"][0]) }
+
+        return analysis
+
+
+    def latest_similarity_analysis(self, groupByYear=False):
         """Perform similarity analysis on the latest paper"""
         def latest(x, y):
             if x.year_stop > y.year_stop:
@@ -168,4 +179,7 @@ class Module(Base):
         sorted_papers = sorted(self.papers, latest)
         latest_paper = sorted_papers[0]
 
-        return self.similarity_analysis(latest_paper)
+        if groupByYear:
+            return self.similarity_analysis_by_year(latest_paper)
+        else:
+            return self.similarity_analysis(latest_paper)

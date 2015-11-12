@@ -13,7 +13,7 @@ sqla = logging.getLogger("sqlalchemy.engine.base.Engine")
 sqla.disabled = True
 
 # Get all the modules
-module = session.query(Module).filter(Module.code == "CT422-1").one()
+module = session.query(Module).filter(Module.code == "ME352-1").one()
 
 # Save them to the downloads folder
 Paper.PAPER_DIR = "/Users/adrian/Downloads/exam_papers"

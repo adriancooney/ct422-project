@@ -11,7 +11,7 @@ session = Session()
 
 #     paper.index()
 
-def test_feature_extraction():
-    paper = session.query(Paper).filter(Paper.id == 3720).first()
+def test_get_question():
+    paper = session.query(Paper).filter(Paper.id == 3907).first()
 
-    paper.vectorize()
+    print paper.get_question(0, 0)
