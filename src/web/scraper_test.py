@@ -6,4 +6,4 @@ def test_scraper_max():
     Scraper.get_papers("MA%")
 
 def test_scraper_none():
-    assert len(Scraper.get_papers("MA1")) is 0
+    assert len(Scraper.get_papers("MA1")) == 0

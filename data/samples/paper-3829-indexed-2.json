@@ -1,1 +1,244 @@
-{"children": [{"index": "1", "children": [{"content": "Describe the vector space model approach to information retrieval. Your answer should include a description of the query and document representations and also the comparison approach used.       (8) ", "index": "i"}, {"content": "Explain the Extended Boolean model and discuss the advantages and limitations of adopting such a model.        (8) ", "index": "ii"}, {"content": "Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document dj:  < (galway, 0.5), (of, 0.01), (national, 0.3), (university, 0.2), (ireland, 0.4)>  Show how the relevance of the document dj may be calculated with query q in the following scenarios:  ", "index": "iii", "children": [{"content": "q = (university, of, ireland) under the vector space model", "index": "a"}, {"content": "q = (university AND ireland) under the extended Boolean model", "index": "b"}, {"content": "q = (university OR ireland) under the extended Boolean model (9)  ", "index": "c"}]}]}, {"index": "2", "children": [{"content": "What is meant by relevance feedback in information retrieval systems and what are the potential benefits and limitations of adopting relevance feedback approaches.  (6) ", "index": "i"}, {"content": "Describe with a suitable example the Rocchio approach to relevance feedback in the vector space model.              (9) ", "index": "ii"}, {"content": "Describe with suitable examples, the differences between association clusters, metric clusters and scalar clusters. Comment on the relative efficiency of the approaches.     (10)             \\f", "index": "iii"}]}, {"index": "3", "children": [{"content": "Empirical evaluation of information retrieval systems plays an important role in information retrieval research. With examples discuss:", "index": "i", "children": [{"content": "The components of a test collection", "index": "a"}, {"content": "Metrics that can be used to measure the performance of an IR system (9) ", "index": "b"}]}, {"content": "Pre-processing of a test collection usually involves stop-word removal and stemming. Explain suitable approaches to both. Use the text of this question to illustrate the algorithms you describe.        (8) ", "index": "ii"}, {"content": "Discuss with a suitable example, an appropriate approach to building an index of terms for a system employing the vector space model.    (8)  ", "index": "iii"}]}, {"index": "4", "children": [{"content": "Describe and discuss, with the aid of examples, suitable indexing strategies and algorithms to deal with single term queries, Boolean queries and prefix queries.            (12) ", "index": "i"}, {"content": "Outline a compression algorithm to deal with large document collections suitable in the domain of Information retrieval.      (7) ", "index": "ii"}, {"content": "With respect to compression, outline techniques that may be adopted to compress an inverted index.         (6)   ", "index": "iii"}]}, {"index": "5", "children": [{"content": "Many modern web-based search engines attempt to take into account the web link structure in addition to the content of the pages. Describe the Page Rank algorithm that uses information embedded in the web link structure to return relevant documents to a user. Discuss any limitations associated with this approach.   (11)  ", "index": "i"}, {"content": "Explain briefly how this algorithm could be extended to take into account user-provided preferences.        (5) ", "index": "ii"}, {"content": "In the context of distributed information retrieval, discuss suitable approaches that could be adopted to tackle the problem of source selection.   (9)      \\f", "index": "iii"}]}, {"index": "6", "children": [{"content": "Natural Language Processing techniques have been used to attempt to resolve ambiguity in user queries. Provide examples of how ambiguity might arise in natural language and suggest an approach to resolving such ambiguities.  (11)  ", "index": "i"}, {"content": "Learning approaches have been adopted in information retrieval systems to either adapt to changes in user behaviours or to learn an optimal manner in which to combine information or process information to give good performance. Neural networks and evolutionary computation are two such learning approaches. Discuss either learning approach in relation to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.          (14)      \\f", "index": "ii"}]}, {"index": "1", "children": [{"content": "Describe the vector space model approach to information retrieval. Your answer should include a description of the query and document representations and also the comparison approach used.       (8) ", "index": "i"}, {"content": "Explain the Extended Boolean model and discuss the advantages and limitations of adopting such a model.        (8) ", "index": "ii"}, {"content": "Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document d:  < (computer, 0.5), (science, 0.3), (galway, 0.3), (university, 0.3), (ireland, 0.2),>  Show how the relevance of the document d to query q may be calculated in the following scenarios:  ", "index": "iii", "children": [{"content": "q = (computer science ireland ) under the vector space model", "index": "a"}, {"content": "q = (computer AND science) under the extended Boolean model", "index": "b"}, {"content": "q = (computer OR science) under the extended Boolean model (9)  ", "index": "c"}]}]}, {"index": "2", "children": [{"content": "Discuss with suitable examples, an appropriate approach to developing a system to perform information retrieval adopting a vector space model. Your answer should include a discussion of the indexing structure adopted.    (11)  ", "index": "i"}, {"content": "Write short notes, with examples, on any two of the following topics: ", "index": "ii", "children": [{"content": "Discuss how you might pre-process the document collection prior to building your index for a vector space model.", "index": "a"}, {"content": "Discuss how you might augment, and/or use, your indexing structure to incorporate information regarding proximity of query terms in the documents.", "index": "b"}, {"content": "Discuss how you might augment your retrieval model to incorporate aspects of data retrieval for documents that have both structured data fields (e.g. date, title and author) and unstructured content (the content of the article).  (14)    \\f ", "index": "c"}]}]}, {"index": "3", "children": [{"content": "Retrieval of relevant documents (and sub-documents) from a collection of XML documents is a well-known example of structured retrieval. Explain the main differences between structured retrieval and classical information retrieval. Outline some of the difficulties encountered in structured retrieval and suggest means to deal with these difficulties.        (10) ", "index": "i"}, {"content": "Empirical evaluation of information retrieval systems plays an important role in information retrieval research. Define and discuss the following metrics that can be used to measure the performance of an IR system: precision, recall, novelty and coverage. (10)", "index": "ii"}, {"content": "The concepts of topical relevance and component coverage have been used to evaluate approaches to retrieval from XML collections. Describe these approaches.                  (5)        ", "index": "iii"}]}, {"index": "4", "children": [{"content": "Many modern web-based search engines attempt to take into account the web link structure in addition to the content of the pages. Describe, with the aid of an example, the Page Rank algorithm that uses information embedded in the web link structure to return relevant documents to a user. Discuss any limitations associated with this approach and suggest how one might overcome these limitations.   (12) ", "index": "i"}, {"content": "Learning mechanisms has been used successfully to search for suitable means to combine sources of evidence in information retrieval. Discuss such an approach applied to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.                                      (13)               \\f", "index": "ii"}]}, {"index": "5", "children": [{"content": "Clustering approaches have been used in a number of domains and applications of information retrieval. Given a collection of document vectors, outline an algorithm to cluster the documents together. Outline any limitations of this approach.  (12)  ", "index": "i"}, {"content": "Given the following matrix of ratings by four people for six films:   The Aviator Crash Vera Drake Ray The Incredibles Don\\ufffd\\ufffd\\ufffdt Look Back Bob 2 5  2 4  Eoin 4 2  5 1 2 Lisa 2 4 3   5 Maura 2 4  5 1   (Note: Ratings are in the range 1-5, where 1 indicates \\ufffd\\ufffd\\ufffddislike\\ufffd\\ufffd\\ufffd and 5 indicates  \\ufffd\\ufffd\\ufffdlike\\ufffd\\ufffd\\ufffd).  Describe a neighbourhood based approach using Pearson Correlation and weighted averages to generate a prediction for Bob for the film \\ufffd\\ufffd\\ufffdDon\\ufffd\\ufffd\\ufffdt Look Back\\ufffd\\ufffd\\ufffd. Your answer should:        (8) \\ufffd\\ufffd\\ufffd Describe the data given. \\ufffd\\ufffd\\ufffd Outline the main steps in the neighbourhood based approach. \\ufffd\\ufffd\\ufffd Show the steps required to predict a rating for \\ufffd\\ufffd\\ufffdDon\\ufffd\\ufffd\\ufffdt Look Back\\ufffd\\ufffd\\ufffd for Bob.               (13) ", "index": "ii"}]}, {"index": "6", "children": [{"content": "Decision trees represent a powerful means to mine useful information from existing datasets. Explain an approach to developing a decision tree given a set of tuples of the following format:  <a1, a2, \\ufffd\\ufffd\\ufffd, ai, classification>.         (9) ", "index": "i"}, {"content": "Outline an algorithm for efficiently identifying frequently occurring itemsets. (8)  ", "index": "ii"}, {"content": "In distributed information retrieval, two of the main problems are source selection (identifying a good source to which send queries) and result fusion (merging results from different collections. The ability to perform these tasks well is often dependent on the quality of the site descriptions. Propose a suitable approach to generating useful descriptions.            (8)     \\f", "index": "iii"}]}]}
+{
+    "children": [
+        {
+            "index": "1",
+            "children": [
+                {
+                    "content": "Describe the vector space model approach to information retrieval. Your answer should include a description of the query and document representations and also the comparison approach used.       (8) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Explain the Extended Boolean model and discuss the advantages and limitations of adopting such a model.        (8) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document dj:  < (galway, 0.5), (of, 0.01), (national, 0.3), (university, 0.2), (ireland, 0.4)>  Show how the relevance of the document dj may be calculated with query q in the following scenarios:  ",
+                    "index": "iii",
+                    "children": [
+                        {
+                            "content": "q = (university, of, ireland) under the vector space model",
+                            "index": "a"
+                        },
+                        {
+                            "content": "q = (university AND ireland) under the extended Boolean model",
+                            "index": "b"
+                        },
+                        {
+                            "content": "q = (university OR ireland) under the extended Boolean model (9)  ",
+                            "index": "c"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "index": "2",
+            "children": [
+                {
+                    "content": "What is meant by relevance feedback in information retrieval systems and what are the potential benefits and limitations of adopting relevance feedback approaches.  (6) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Describe with a suitable example the Rocchio approach to relevance feedback in the vector space model.              (9) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "Describe with suitable examples, the differences between association clusters, metric clusters and scalar clusters. Comment on the relative efficiency of the approaches.     (10)             \\f",
+                    "index": "iii"
+                }
+            ]
+        },
+        {
+            "index": "3",
+            "children": [
+                {
+                    "content": "Empirical evaluation of information retrieval systems plays an important role in information retrieval research. With examples discuss:",
+                    "index": "i",
+                    "children": [
+                        {
+                            "content": "The components of a test collection",
+                            "index": "a"
+                        },
+                        {
+                            "content": "Metrics that can be used to measure the performance of an IR system (9) ",
+                            "index": "b"
+                        }
+                    ]
+                },
+                {
+                    "content": "Pre-processing of a test collection usually involves stop-word removal and stemming. Explain suitable approaches to both. Use the text of this question to illustrate the algorithms you describe.        (8) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "Discuss with a suitable example, an appropriate approach to building an index of terms for a system employing the vector space model.    (8)  ",
+                    "index": "iii"
+                }
+            ]
+        },
+        {
+            "index": "4",
+            "children": [
+                {
+                    "content": "Describe and discuss, with the aid of examples, suitable indexing strategies and algorithms to deal with single term queries, Boolean queries and prefix queries.            (12) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Outline a compression algorithm to deal with large document collections suitable in the domain of Information retrieval.      (7) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "With respect to compression, outline techniques that may be adopted to compress an inverted index.         (6)   ",
+                    "index": "iii"
+                }
+            ]
+        },
+        {
+            "index": "5",
+            "children": [
+                {
+                    "content": "Many modern web-based search engines attempt to take into account the web link structure in addition to the content of the pages. Describe the Page Rank algorithm that uses information embedded in the web link structure to return relevant documents to a user. Discuss any limitations associated with this approach.   (11)  ",
+                    "index": "i"
+                },
+                {
+                    "content": "Explain briefly how this algorithm could be extended to take into account user-provided preferences.        (5) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "In the context of distributed information retrieval, discuss suitable approaches that could be adopted to tackle the problem of source selection.   (9)      \\f",
+                    "index": "iii"
+                }
+            ]
+        },
+        {
+            "index": "6",
+            "children": [
+                {
+                    "content": "Natural Language Processing techniques have been used to attempt to resolve ambiguity in user queries. Provide examples of how ambiguity might arise in natural language and suggest an approach to resolving such ambiguities.  (11)  ",
+                    "index": "i"
+                },
+                {
+                    "content": "Learning approaches have been adopted in information retrieval systems to either adapt to changes in user behaviours or to learn an optimal manner in which to combine information or process information to give good performance. Neural networks and evolutionary computation are two such learning approaches. Discuss either learning approach in relation to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.          (14)      \\f",
+                    "index": "ii"
+                }
+            ]
+        },
+        {
+            "index": "1",
+            "children": [
+                {
+                    "content": "Describe the vector space model approach to information retrieval. Your answer should include a description of the query and document representations and also the comparison approach used.       (8) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Explain the Extended Boolean model and discuss the advantages and limitations of adopting such a model.        (8) ",
+                    "index": "ii"
+                },
+                {
+                    "content": "Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document d:  < (computer, 0.5), (science, 0.3), (galway, 0.3), (university, 0.3), (ireland, 0.2),>  Show how the relevance of the document d to query q may be calculated in the following scenarios:  ",
+                    "index": "iii",
+                    "children": [
+                        {
+                            "content": "q = (computer science ireland ) under the vector space model",
+                            "index": "a"
+                        },
+                        {
+                            "content": "q = (computer AND science) under the extended Boolean model",
+                            "index": "b"
+                        },
+                        {
+                            "content": "q = (computer OR science) under the extended Boolean model (9)  ",
+                            "index": "c"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "index": "2",
+            "children": [
+                {
+                    "content": "Discuss with suitable examples, an appropriate approach to developing a system to perform information retrieval adopting a vector space model. Your answer should include a discussion of the indexing structure adopted.    (11)  ",
+                    "index": "i"
+                },
+                {
+                    "content": "Write short notes, with examples, on any two of the following topics: ",
+                    "index": "ii",
+                    "children": [
+                        {
+                            "content": "Discuss how you might pre-process the document collection prior to building your index for a vector space model.",
+                            "index": "a"
+                        },
+                        {
+                            "content": "Discuss how you might augment, and/or use, your indexing structure to incorporate information regarding proximity of query terms in the documents.",
+                            "index": "b"
+                        },
+                        {
+                            "content": "Discuss how you might augment your retrieval model to incorporate aspects of data retrieval for documents that have both structured data fields (e.g. date, title and author) and unstructured content (the content of the article).  (14)    \\f ",
+                            "index": "c"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "index": "3",
+            "children": [
+                {
+                    "content": "Retrieval of relevant documents (and sub-documents) from a collection of XML documents is a well-known example of structured retrieval. Explain the main differences between structured retrieval and classical information retrieval. Outline some of the difficulties encountered in structured retrieval and suggest means to deal with these difficulties.        (10) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Empirical evaluation of information retrieval systems plays an important role in information retrieval research. Define and discuss the following metrics that can be used to measure the performance of an IR system: precision, recall, novelty and coverage. (10)",
+                    "index": "ii"
+                },
+                {
+                    "content": "The concepts of topical relevance and component coverage have been used to evaluate approaches to retrieval from XML collections. Describe these approaches.                  (5)        ",
+                    "index": "iii"
+                }
+            ]
+        },
+        {
+            "index": "4",
+            "children": [
+                {
+                    "content": "Many modern web-based search engines attempt to take into account the web link structure in addition to the content of the pages. Describe, with the aid of an example, the Page Rank algorithm that uses information embedded in the web link structure to return relevant documents to a user. Discuss any limitations associated with this approach and suggest how one might overcome these limitations.   (12) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Learning mechanisms has been used successfully to search for suitable means to combine sources of evidence in information retrieval. Discuss such an approach applied to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.                                      (13)               \\f",
+                    "index": "ii"
+                }
+            ]
+        },
+        {
+            "index": "5",
+            "children": [
+                {
+                    "content": "Clustering approaches have been used in a number of domains and applications of information retrieval. Given a collection of document vectors, outline an algorithm to cluster the documents together. Outline any limitations of this approach.  (12)  ",
+                    "index": "i"
+                },
+                {
+                    "content": "Given the following matrix of ratings by four people for six films:   The Aviator Crash Vera Drake Ray The Incredibles Don\\ufffd\\ufffd\\ufffdt Look Back Bob 2 5  2 4  Eoin 4 2  5 1 2 Lisa 2 4 3   5 Maura 2 4  5 1   (Note: Ratings are in the range 1-5, where 1 indicates \\ufffd\\ufffd\\ufffddislike\\ufffd\\ufffd\\ufffd and 5 indicates  \\ufffd\\ufffd\\ufffdlike\\ufffd\\ufffd\\ufffd).  Describe a neighbourhood based approach using Pearson Correlation and weighted averages to generate a prediction for Bob for the film \\ufffd\\ufffd\\ufffdDon\\ufffd\\ufffd\\ufffdt Look Back\\ufffd\\ufffd\\ufffd. Your answer should:        (8) \\ufffd\\ufffd\\ufffd Describe the data given. \\ufffd\\ufffd\\ufffd Outline the main steps in the neighbourhood based approach. \\ufffd\\ufffd\\ufffd Show the steps required to predict a rating for \\ufffd\\ufffd\\ufffdDon\\ufffd\\ufffd\\ufffdt Look Back\\ufffd\\ufffd\\ufffd for Bob.               (13) ",
+                    "index": "ii"
+                }
+            ]
+        },
+        {
+            "index": "6",
+            "children": [
+                {
+                    "content": "Decision trees represent a powerful means to mine useful information from existing datasets. Explain an approach to developing a decision tree given a set of tuples of the following format:  <a1, a2, \\ufffd\\ufffd\\ufffd, ai, classification>.         (9) ",
+                    "index": "i"
+                },
+                {
+                    "content": "Outline an algorithm for efficiently identifying frequently occurring itemsets. (8)  ",
+                    "index": "ii"
+                },
+                {
+                    "content": "In distributed information retrieval, two of the main problems are source selection (identifying a good source to which send queries) and result fusion (merging results from different collections. The ability to perform these tasks well is often dependent on the quality of the site descriptions. Propose a suitable approach to generating useful descriptions.            (8)     \\f",
+                    "index": "iii"
+                }
+            ]
+        }
+    ]
+}

@@ -11,7 +11,12 @@ session = Session()
 
 #     paper.index()
 
-def test_get_question():
+# def test_get_question():
+#     paper = session.query(Paper).filter(Paper.id == 3907).first()
+
+#     print paper.get_question(0, 0)
+
+def test_get_questions():
     paper = session.query(Paper).filter(Paper.id == 3907).first()
 
-    print paper.get_question(0, 0)
+    print paper.get_questions()

@@ -2,6 +2,7 @@ import slate
 import json
 import pycurl
 import logging
+import sqlalchemy
 from os.path import join
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -31,6 +32,14 @@ class Paper(Base):
 
     contents = Column(JSON)
     raw_contents = Column(Text)
+
+    # Order by paper period
+    order_by_period = sqlalchemy.sql.expression.case(
+        ((period == "Winter", 1),
+         (period == "Summer", 2),
+         (period == "Autumn", 3),
+         (period == "Spring", 4))
+    )
 
     def __init__(self, module, name, period, sitting, year_start, year_stop, link, contents, document=None):
         """The Paper class describes a Exam paper.
@@ -101,9 +110,9 @@ class Paper(Base):
         session.commit()
 
     def __repr__(self):
-        return "<Paper(id={id}, {module}, {year_start}/{year_stop}, {sitting}, link={link})>".format(
+        return "<Paper(id={id}, {module}, {year_start}/{year_stop}, {period}, {sitting}, link={link})>".format(
             id=self.id, module=self.module.code, year_start=self.year_start, year_stop=self.year_stop,
-            sitting=self.sitting, link=(self.link != None))
+            sitting=self.sitting, period=self.period, link=(self.link != None))
 
     def get_question(self, *args):
         """Get a questions contents from a paper. If none available, return the nearest estimate
@@ -129,6 +138,7 @@ class Paper(Base):
 
         question = None
         children = self.contents["children"]
+        index = []
         path = list(args)
 
         while path:
@@ -136,13 +146,14 @@ class Paper(Base):
 
             try:
                 question = children[i]
+                index.append(question["index"])
 
                 if "children" in question:
                     children = question["children"]
             except IndexError:
-                break
+                return False
 
-        return question
+        return question, index
 
     def get_questions(self):
         """This methods returns a list of all the questions in the form of:
@@ -157,7 +168,7 @@ class Paper(Base):
             qs = []
 
             if "content" in question:
-                qs.append((path, question["content"]))
+                qs.append(path)
 
             if "children" in question:
                 for i, child in enumerate(question["children"]):
@@ -165,7 +176,8 @@ class Paper(Base):
 
             return qs
 
-        return flatten(self.contents)
+        return [(path,) + self.get_question(*path) for path in flatten(self.contents)]
+
 
     def is_indexed(self):
         return bool(self.contents) or bool(self.pdf)
@@ -178,6 +190,9 @@ class Paper(Base):
             'sitting': self.sitting,
             'period': self.period
         }
+
+class InvalidPathException(Exception):
+    pass
 
 class NoLinkException(Exception):
     pass

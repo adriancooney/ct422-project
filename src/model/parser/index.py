@@ -31,9 +31,9 @@ class Index:
     roman = { 'i': 1, 'v': 5, 'x': 10 }
 
     def __int__(self):
-        if self.index_type is "alpha":
+        if self.index_type == "alpha":
             return pp.alphas.index(self.value.lower()) + 1
-        elif self.index_type is "roman":
+        elif self.index_type == "roman":
             numerals = self.value.lower()
             total = 0
             for special in ('iv', 'ix'):

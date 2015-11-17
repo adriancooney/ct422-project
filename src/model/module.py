@@ -3,7 +3,9 @@ import logging
 import itertools
 
 import pandas as pd
+from paper import Paper
 from itertools import groupby
+from collections import OrderedDict
 from pandas import DataFrame, concat
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -84,9 +86,12 @@ class Module(Base):
         questions = []
         for paper in self.papers:
             if paper.contents:
-                questions += [(paper,) + question for question in paper.get_questions()]
+                nq = []
+                for path, question, index in paper.get_questions():
+                    nq.append((paper, path, question["content"], index))
+                questions += nq
 
-        return DataFrame(questions, columns=["Paper", "Path", "Content"])
+        return DataFrame(questions, columns=["Paper", "Path", "Content", "Index"])
 
     def vectorize(self):
         self.questions = self.get_questions()
@@ -117,67 +122,72 @@ class Module(Base):
     def similarity_analysis(self, paper):
         """Perform a similarity analysis over all the questions in paper"""
         analysis = []
-        for question, contents in paper.get_questions():
-            logging.info("Perform similarity analysis on question %s '%s..'" % (question, contents[:30]))
+        for path, question, index in paper.get_questions():
+            logging.info("Perform similarity analysis on question %r '%s..'" % (question, question["content"][:30]))
 
-            similar_questions = self.find_similar_questions(paper, question)
+            similar_questions = self.find_similar_questions(paper, path)
             similar_relevant = similar_questions[similar_questions["Similarity"] > Module.SIMILARITY_THRESHOLD]
 
             p = []
             for i, row in similar_relevant.iterrows():
                 npaper = row["Paper"]
+                npath = row["Path"]
 
                 # Prevent similarity analysis on same paper
                 if npaper == paper:
                     continue
 
                 data = npaper.to_dict()
+                nquestion, nindex = npaper.get_question(*npath)
 
                 data['similarity'] = row["Similarity"]
-                data['question'] = row["Path"]
+                data['question'] = {
+                    'index': nindex,
+                    'path': npath,
+                    'content': nquestion["content"]
+                }
 
                 p.append(data)
 
             breakdown = {
-                'content': contents,
-                'question': question,
+                'question': {
+                    'content': question["content"],
+                    'path': path,
+                    'index': index
+                },
                 'papers': p
             }
 
             analysis.append(breakdown)
 
-        return {
-            'module': self.code,
-            'analysis': analysis
-        }
+        return analysis, paper
 
     def similarity_analysis_by_year(self, paper):
-        analysis = self.similarity_analysis(paper)
+        analysis, paper = self.similarity_analysis(paper)
 
-        for question in analysis["analysis"]:
+        for question in analysis:
             papers = question["papers"]
 
             # Sort the papers first by year
             papers.sort(key=lambda p: p["years"][0])
 
-            # Group by papers
-            question["papers"] = { key: [record for record in group] for key, group in groupby(papers, lambda p: p["years"][0]) }
+            npapers = OrderedDict()
 
-        return analysis
+            for key, group in groupby(papers, lambda p: p["years"][0]):
+                npapers[key] = [record for record in group]
+
+            question["papers"] = npapers
+
+        return analysis, paper
 
 
     def latest_similarity_analysis(self, groupByYear=False):
         """Perform similarity analysis on the latest paper"""
-        def latest(x, y):
-            if x.year_stop > y.year_stop:
-                return -1
-            elif x.year_stop < y.year_stop:
-                return 1
-            else:
-                return 0
-
-        sorted_papers = sorted(self.papers, latest)
-        latest_paper = sorted_papers[0]
+        session = Session.object_session(self)
+        latest_paper = session.query(Paper).filter(
+            (Paper.module_id == self.id) & \
+            (Paper.contents != None)
+        ).order_by(Paper.year_start.desc(), Paper.order_by_period).first()
 
         if groupByYear:
             return self.similarity_analysis_by_year(latest_paper)
