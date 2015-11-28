@@ -45,7 +45,7 @@ class Index:
             return self.value
         
     def __str__(self):
-        return "Index[type=%s, value=%s, i=%d, section=%r, notation=%s]" % (self.index_type, self.value, self.i, self.is_section, self.notation)
+        return "Section " + str(self.value) if self.is_section else str(self.value)
     
     def __repr__(self):
-        return str(self)
+        return "Index[type=%s, value=%s, i=%d, section=%r, notation=%s]" % (self.index_type, self.value, self.i, self.is_section, self.notation)

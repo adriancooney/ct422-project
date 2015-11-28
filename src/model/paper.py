@@ -3,11 +3,13 @@ import json
 import pycurl
 import logging
 import sqlalchemy
+import pyparsing as pp
 from os.path import join
 from sklearn.feature_extraction.text import CountVectorizer
 
 from base import Base
-from parser.parser import Parser, UnparseableException
+from question import Question
+from index import Index
 from paper_pdf import PaperPDF, PaperNotFound
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Text
@@ -28,9 +30,8 @@ class Paper(Base):
     year_start = Column(Integer)
     year_stop = Column(Integer)
     pdf = relationship("PaperPDF", backref="paper", uselist=False)
+    questions = relationship("Question", backref="paper")
     link = Column(String)
-
-    contents = Column(JSON)
     raw_contents = Column(Text)
 
     # Order by paper period
@@ -67,6 +68,8 @@ class Paper(Base):
         Args:
             document (List[str]): The list of pages.
         """
+        logging.info("Indexing paper %r" % self)
+
         if not self.link:
             raise NoLinkException("No link attribute on this paper.")
 
@@ -98,10 +101,7 @@ class Paper(Base):
 
         # Parse the pages contents
         # TODO: Parse first page.
-        parsed = Parser.parse_pages(pages[1:])
-
-        # Save the contents
-        self.contents = Parser.to_dict(parsed)
+        self.questions = Paper.parse_pages(pages[1:])
 
         # Add self to commit
         session.add(self)
@@ -114,7 +114,7 @@ class Paper(Base):
             id=self.id, module=self.module.code, year_start=self.year_start, year_stop=self.year_stop,
             sitting=self.sitting, period=self.period, link=(self.link != None))
 
-    def get_question(self, *args):
+    def get_question(self, *path):
         """Get a questions contents from a paper. If none available, return the nearest estimate
         to question path. All this function really does is smartly traverse the document tree ignoring
         sections and such.
@@ -133,53 +133,12 @@ class Paper(Base):
             str: The content of the question
         """
 
-        if not self.contents:
-            return None
-
-        question = None
-        children = self.contents["children"]
-        index = []
-        path = list(args)
-
-        while path:
-            i = path.pop(0)
-
-            try:
-                question = children[i]
-                index.append(question["index"])
-
-                if "children" in question:
-                    children = question["children"]
-            except IndexError:
-                return False
-
-        return question, index
-
-    def get_questions(self):
-        """This methods returns a list of all the questions in the form of:
-
-            (Paper, (question_path), content)
-            (<Paper(id=1)>, (1, 2, 1), "<question document>")"""
-
-        if not self.contents:
-            raise RuntimeError("%r has no contents." % self)
-
-        def flatten(question, path=()):
-            qs = []
-
-            if "content" in question:
-                qs.append(path)
-
-            if "children" in question:
-                for i, child in enumerate(question["children"]):
-                    qs += flatten(child, path + (i,))
-
-            return qs
-
-        return [(path,) + self.get_question(*path) for path in flatten(self.contents)]
-
+        for question in self.questions:
+            if question.path == path:
+                return question
 
     def is_indexed(self):
+        """Return whether a paper is indexed or not."""
         return bool(self.contents) or bool(self.pdf)
 
     def to_dict(self):
@@ -191,8 +150,166 @@ class Paper(Base):
             'period': self.period
         }
 
+    ######################################
+    # Paper parser.
+    ######################################
+
+    # Let's define our parser
+    _ = (pp.White(exact=1) | pp.LineEnd() | pp.LineStart()).suppress()
+    __ = pp.White().suppress()
+    ___ = pp.Optional(__)
+    ____ = pp.Optional(_)
+
+    # Define tokens for numerical, alpha and roman indices
+    # Max two digits for numerical indices because lecturers aren't psychopaths
+    index_digit = pp.Word(pp.nums, max=2).setParseAction(lambda s, l, t: [Index("decimal", int(t[0]))])("[0-9]") 
+    index_alpha = pp.Word(pp.alphas, exact=1).setParseAction(lambda s, l, t: [Index("alpha", t[0])])("[a-z]")
+    index_roman = pp.Word("ivx").setParseAction(lambda s, l, t: [Index("roman", t[0])])("[ivx]") # We only support 1-100 roman numerals
+    index_type = (index_digit | index_roman | index_alpha)("index")
+
+    # Define token for ("Question" / "Q") + "."
+    question = (pp.CaselessLiteral("Question") + pp.Optional("."))("question")
+
+    # Define tokens for formatted indices e.g [a], (1), ii. etc.
+    index_dotted = (index_type + pp.Literal(".").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("dotted"))
+    index_round_brackets = (pp.Optional(pp.Literal("(")).suppress() + index_type + pp.Literal(")").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("round"))
+    index_square_brackets = (pp.Literal("[").suppress() + index_type + pp.Literal("]").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("square"))
+    index_question = (pp.Word("qQ", exact=1).suppress() + pp.Optional(".").suppress() + index_type + pp.Optional(".").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("question"))
+
+    # Define final index token with optional Question token before formatted index
+    index = (
+        # Whitespace is required before each index (e.g. "hello world." the d. would be take for an index)
+        _ + \
+        # Optional "Question." before
+        pp.Optional(question + ___).suppress() + \
+        # The index
+        (index_question | index_dotted | index_round_brackets | index_square_brackets) + \
+        # Required whitespace *after* index
+        _
+    )
+
+    # Define a section header
+    section = (pp.CaselessKeyword("Section").suppress() + __ + index_type + _).setParseAction(
+        lambda s, l, t: [t[0].section()]
+    )("section")
+
+    # Entry point for the parser
+    entry = section ^ index
+
+    @staticmethod
+    def parse_pages(pages):
+        """Parse a page in a paper.
+
+        We have a pretty complicated sorting algorithm
+
+        Args:
+            page (str): A page within the paper.
+        """
+
+        # If were passed in a list of pages, join them together
+        if isinstance(pages, list):
+            pages = ' '.join([page for page in pages])
+
+        logging.info("Parsing exam paper question pages.")
+        logging.info(pages)
+
+        stack = [] # The stack that holds the current index path
+        questions = []
+
+        question, last_question, marker = None, None, 0
+
+        # Loop over every token we've parsed from the pages
+        for token, start, end in Paper.entry.leaveWhitespace().scanString(pages, overlap=True):
+            # Tiny function to push the current question onto the stack
+            def push():
+                global question
+                question = Question(stack)
+                stack.append(index)
+                questions.append(Question(stack))
+
+            index = token[0] # The incoming index
+
+            logging.info("0. Handling index %r" % index)
+
+            # If the container is the paper, just push the question
+            if len(stack) == 0:
+                logging.info("1. Pushing top level index %r." % index)
+                push()
+                continue
+
+            last_index = stack[-1] # The last index is the last item in the stack
+
+            if index.isSimilar(last_index):
+                logging.info("1.1 Similiar indexes %s and previous %s." % (index.index_type, last_index.index_type))
+
+                if last_index.isNext(index):
+                    logging.info("1.1.1 Pushing index with same type as last index and in sequence.")
+                    stack.pop()
+                    push()
+                else:
+                    logging.info("1.1.2 Question with similar indexes but not in sequence, ignoring.")
+                    continue
+            else:
+                logging.info("1.2 Dissimilar indexes %s and previous %s." % (index.index_type, last_index.index_type))
+                
+                parent_index, n = None, 0
+
+                # Go through the stack and find the similar index
+                for i, idx in reversed(list(enumerate(stack))):
+                    if idx.isSimilar(index):
+                        parent_index, n = idx, i
+                        break
+
+                # We need to traverse the stack and see if we can find a similar index
+                if parent_index:
+                    logging.info("1.2.1 Index similar to parent index %d up the stack [%r]" % (n, parent_index))
+
+                    # If we have found a similar index and they're in sequence, add the question after
+                    # the found container.
+                    if parent_index.isNext(index):
+                        logging.info("1.2.1.1 Index in sequence, pushing into stack.")
+                        stack = stack[:n]
+                        push()
+                    else:
+                        logging.info("1.2.1.2 Index not in sequence, ignoring")
+                        continue
+
+                # If we encounter a new type of index and it's not the start of a new list, we
+                # can just discard it (it's probably marks). However if the previous index is 
+                # a section, we can just continue. 
+                elif index.i == 1 or last_index.is_section: 
+                    logging.info("1.2.2 Pushing new question %r." % index )
+                    push()
+                else:
+                    logging.info("1.2.3 New index value not first in sequence, ignoring.")
+                    continue
+
+            # Save the text
+            if last_question != None:
+                last_question.content = pages[marker:start]
+                last_question = None
+                marker = end
+            elif marker == 0:
+                marker = end
+
+            last_question = question
+
+        # Squeeze out that last part
+        if last_question:
+            last_question.content = pages[marker:]
+
+        # Test to see if we have any data returned. For now,
+        # we'll assume it's "unparsable" if not content if found.
+        if not questions:
+            raise UnparseableException()
+
+        return questions
+
 class InvalidPathException(Exception):
     pass
 
 class NoLinkException(Exception):
+    pass
+
+class UnparseableException(Exception):
     pass
