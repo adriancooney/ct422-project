@@ -9,9 +9,16 @@
     "build_systems": [
         {
             "name": "py.test",
-            "cmd": ["py.test", "-s", "${file_base_name}_test.py"],
+            "cmd": ["py.test", "-s", "${file_name/(?<!_test)\\.py/_test.py/}"],
             "working_dir": "${file_path}",
             "selector": "source.python",
+            "path": "/usr/local/bin:$PATH"
+        },
+
+        {
+            "name": "web",
+            "cmd": ["python", "-m", "project.src.web.api"],
+            "working_dir": "${project_path}/../",
             "path": "/usr/local/bin:$PATH"
         }
     ]

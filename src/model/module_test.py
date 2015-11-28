@@ -12,16 +12,16 @@ session = Session()
 
 #     print ct422.to_JSON()
 
-# def test_find_similar():
-#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+def test_find_similar():
+    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
     
-#     # Find paper
-#     random.seed(100)
-#     paper = filter(lambda paper: paper.contents, ct422.papers)[0]
-#     questions = paper.get_questions()
-#     question = random.choice(questions)[0]
+    # Find paper
+    random.seed(100)
+    paper = filter(lambda paper: paper.contents, ct422.papers)[0]
+    questions = paper.get_questions()
+    question = random.choice(questions)[0]
 
-#     print ct422.find_similar_questions(paper, question)
+    print ct422.find_similar_questions(paper, question).index
 
 # def test_analysis():
 #     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
@@ -30,7 +30,13 @@ session = Session()
 
 #     print json.dumps(ct422.similarity_analysis(paper))
 
-def test_latest_analysis():
-    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+# def test_analysis():
+#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 
-    ct422.latest_similarity_analysis(groupByYear=True)
+#     print json.dumps(ct422.latest_similarity_analysis())
+
+
+# def test_get_questions():
+#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+
+#     print ct422.papers[3].get_questions()
