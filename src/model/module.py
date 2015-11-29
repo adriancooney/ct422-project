@@ -29,8 +29,7 @@ class Module(Base):
     code = Column(String, unique=True)
     name = Column(String)
     category_id = Column(Integer, ForeignKey('module_category.id'))
-    is_indexed = Column(Boolean, default=False)
-    papers = relationship("Paper", backref="module")
+    papers = relationship("Paper", backref="module", order_by="Paper.year_start, Paper.period, Paper.indexed")
 
     @reconstructor
     def init_load(self):
@@ -246,3 +245,17 @@ class Module(Base):
             return self.similarity_analysis_by_year(latest_paper), latest_paper
         else:
             return self.similarity_analysis(latest_paper), latest_paper
+
+    def is_indexed(self):
+        """Determine whether a module is indexed or not."""
+        return all(map(lambda p: p.indexed, self.papers))
+
+    #########################################
+    # Query methods
+    #########################################
+    
+    @staticmethod
+    def getByCode(session, code):
+        return session.query(Module).filter(
+            Module.code.like(code + '%')
+        ).one()

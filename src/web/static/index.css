@@ -4,6 +4,15 @@
 body {
   font-family: "Source Sans Pro", sans-serif; }
 
+a {
+  color: #006699;
+  text-decoration: none; }
+  a:hover {
+    border-bottom: 1px solid #006699; }
+
+table td {
+  padding: 6px; }
+
 .analysis section {
   display: flex; }
 .analysis .questions {
@@ -54,5 +63,14 @@ body {
   padding: 8px; }
   .modules a.indexed {
     background: red; }
+
+.module .not-indexed {
+  background: #B4D8E7; }
+.module .not-available {
+  background: #FFF0AA; }
+.module .not-parseable {
+  background: #FFAEAE; }
+.module .available {
+  background: #B0E57C; }
 
 /*# sourceMappingURL=index.css.map */

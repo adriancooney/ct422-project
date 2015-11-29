@@ -3,6 +3,23 @@
 body {
     font-family: "Source Sans Pro", sans-serif;
 }
+
+a {
+    $color: darken(#006699, 0%);
+    color: $color;
+    text-decoration: none;
+
+    &:hover {
+        border-bottom: 1px solid $color;
+    }
+}
+
+table {
+    td {
+        padding: 6px;
+    }
+}
+
 .analysis {
     section {
         display: flex;
@@ -79,4 +96,11 @@ body {
             background: red;
         }
     }
+}
+
+.module {
+    .not-indexed { background: #B4D8E7; }
+    .not-available { background: #FFF0AA; }
+    .not-parseable { background: #FFAEAE; }
+    .available { background: #B0E57C; }
 }

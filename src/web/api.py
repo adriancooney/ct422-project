@@ -14,42 +14,49 @@ app = Flask(__name__)
 cache = SimpleCache()
 session = Session()
 
-def fail(code, message):
+def fail(code, message, format='html'):
     """Fail a request in a standard way."""
-    response = flask.jsonify({
-        'error': message,
-        'code': code
-    })
+    if format == 'json':
+        response = flask.jsonify({
+            'error': message,
+            'code': code
+        })
+    elif format == 'html':
+        response = flask.render_template('error.html', code=code, message=message)
 
-    response.status_code = code
+    return response, code
 
-    return response
+@app.route('/module/<module>/')
+def get_module(module):
+    module = module.upper()
 
-@app.route('/module/<module>/report', methods=['GET'])
-def get_module_report(module): 
-    try:      
-        module = module.upper()
-        key = 'module.%s' % module
+    index = request.args.get("index")
 
-        # Get it from the cache
-        data = cache.get(key)
+    if index:
+        id = int(index)
 
-        if not data:
-            # Get the module
-            module = session.query(Module).filter(Module.code == module).one()
+        try:
+            paper = Paper.getById(session, id)
 
-            if not module.is_indexed:
-                module.index()
+            try:
+                print "Indexing paper %r" % paper
+                paper.index()
+            except:
+                pass
+        except NoResultFound:
+            return fail(404, "Paper %d not found" % id)
 
-            analysis, paper = module.latest_similarity_analysis(groupByYear=True)
-
-            cache.set(key, (module, analysis, paper))
-        else:
-            module, analysis, paper = data
-
-        return flask.render_template("analysis.html", analysis=analysis, paper=paper, module=module)
+    try:
+        module = Module.getByCode(session, module)
     except NoResultFound:
-        return fail(404, "Module %s not found." % str(module))
+        return fail(404, "Module not found.")
+
+    return flask.render_template('module.html', module=module)
+
+@app.route('/module/<module>/report/', methods=['GET'], defaults={ 'year': 'latest' })    
+@app.route('/module/<module>/<year>/report/', methods=['GET'])
+def get_module_report(module, year):
+    pass
 
 @app.route('/module/<module>.json', methods=['GET'])
 def get_module_json(module): 
@@ -89,8 +96,6 @@ def get_module_json(module):
 @app.route('/paper/<module>/<year>/<period>/<sitting>', defaults={ 'format': 'html' })
 @app.route('/paper/<module>/<year>/<period>/<sitting>.<format>')
 def get_paper(module, year, period, sitting, format):
-    global periods
-
     try:
         if not format in ['json', 'pdf', 'html']:
             return fail(401, "Unknown format %s" % format)
@@ -113,28 +118,19 @@ def get_paper(module, year, period, sitting, format):
             if not paper:
                 raise NoResultFound()
 
-        # Looks like they just want a PDF
-        if format == 'pdf':
-            print paper
-
-            if not paper.pdf:
-                try:
-                    paper.download()
-                except NoLinkException:
-                    return fail(404, "PDF %r not found." % paper)
-
-            return flask.send_from_directory(os.path.dirname(paper.pdf.path), os.path.basename(paper.pdf.path))
-
-        # No PDF required, they want some content. Make sure the PDF is indexed.
         if not paper.is_indexed():
             try:
                 paper.index()
             except UnparseableException:
-                return fail(400, "Unable to parse paper %r" % paper)
-            except (NoLinkException, PaperNotFound):
-                return fail(404, "Paper %r not found." % paper)
-            except:
-                print "------------------------- FAILED"
+                if not format == 'pdf':
+                    return fail(400, "Unable to parse paper %r" % paper)
+            except NoLinkException:
+                return fail(404, "Paper %r has no link")
+            except PaperNotFound:
+                return fail(404, "PDF not found on NUIG Exam papers for %r." % paper)
+
+        if format == 'pdf':
+            return flask.send_from_directory(os.path.dirname(paper.pdf.path), os.path.basename(paper.pdf.path))
 
         # Direct path to question
         path = request.args.get("q")
