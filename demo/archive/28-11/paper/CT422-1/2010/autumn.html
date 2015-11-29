@@ -6,8 +6,7 @@
 </head>
 <body>
 <header>
-    <nav><p><a href="../../../module/CT422-1/index.html">&larr; Back to CT422-1</a>
-    <a href="http://localhost:5000/modules/">Modules</a></p>
+    <nav><p><a href="http://localhost:5000/modules/">Modules</a></p>
     <h1></h1>
 </header>
 
@@ -25,22 +24,22 @@
     
         <div class="questions">
             <h4 id="Q1.3" style="width: 60px"><span>1.</span><span>3.</span></h4>
-            <p>Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document d:  &lt; (dylan, 0.5), (bob, 0.1), (cork, 0.3), (marquee, 0.3), (ireland, 0.2), (june, 0.3) &gt;  Show how the relevance of the document d to query q may be calculated in the following scenarios:  </p>
+            <p>Assuming the following document vector has been calculated using some tf-idf weighting scheme for some document d:  &lt; (computer, 0.5), (science, 0.3), (galway, 0.3), (university, 0.3), (ireland, 0.2),&gt;  Show how the relevance of the document d to query q may be calculated in the following scenarios:  </p>
         </div>
     
         <div class="questions">
             <h4 id="Q1.3.1" style="width: 90px"><span>1.</span><span>3.</span><span>1.</span></h4>
-            <p>q = (dylan to play cork in june ) under the vector space model</p>
+            <p>q = (computer science ireland ) under the vector space model</p>
         </div>
     
         <div class="questions">
             <h4 id="Q1.3.2" style="width: 90px"><span>1.</span><span>3.</span><span>2.</span></h4>
-            <p>q = (dylan AND cork) under the extended Boolean model</p>
+            <p>q = (computer AND science) under the extended Boolean model</p>
         </div>
     
         <div class="questions">
             <h4 id="Q1.3.3" style="width: 90px"><span>1.</span><span>3.</span><span>3.</span></h4>
-            <p>q = (dylan OR cork) under the extended Boolean model (9)  </p>
+            <p>q = (computer OR science) under the extended Boolean model (9)  </p>
         </div>
     
         <div class="questions">
@@ -95,7 +94,7 @@
     
         <div class="questions">
             <h4 id="Q4.2" style="width: 60px"><span>4.</span><span>2.</span></h4>
-            <p>Learning mechanisms has been used successfully to search for suitable means to combine sources of evidence in information retrieval. Discuss such an approach applied to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.                                      (13)                </p>
+            <p>Learning mechanisms has been used successfully to search for suitable means to combine sources of evidence in information retrieval. Discuss such an approach applied to a problem of your choice in information retrieval. Your answer should also identify the strengths and weaknesses of this approach.                                      (13)               </p>
         </div>
     
         <div class="questions">
@@ -105,27 +104,12 @@
     
         <div class="questions">
             <h4 id="Q5.1" style="width: 60px"><span>5.</span><span>1.</span></h4>
-            <p>Clustering approaches have been used in a number of domains and applications of information retrieval. Given a collection of document vectors, outline an algorithm to cluster the documents together. Outline any limitations of this approach.  (9)  </p>
+            <p>Clustering approaches have been used in a number of domains and applications of information retrieval. Given a collection of document vectors, outline an algorithm to cluster the documents together. Outline any limitations of this approach.  (12)  </p>
         </div>
     
         <div class="questions">
             <h4 id="Q5.2" style="width: 60px"><span>5.</span><span>2.</span></h4>
-            <p>Discuss, with reference to existing approaches, suitable approaches to visualising information for users using an information retrieval system. Your answer should include approaches to visualise the</p>
-        </div>
-    
-        <div class="questions">
-            <h4 id="Q5.2.1" style="width: 90px"><span>5.</span><span>2.</span><span>1.</span></h4>
-            <p>answer set and</p>
-        </div>
-    
-        <div class="questions">
-            <h4 id="Q5.2.2" style="width: 90px"><span>5.</span><span>2.</span><span>2.</span></h4>
-            <p>the relationship between the user query and the answer set.                                  (8) </p>
-        </div>
-    
-        <div class="questions">
-            <h4 id="Q5.3" style="width: 60px"><span>5.</span><span>3.</span></h4>
-            <p>In collaborative filtering, similar users are often grouped together to form clusters of users which are then used to make predictions. Discuss, with an example, any commonly adopted approach to grouping users together.    (8)          </p>
+            <p>Given the following matrix of ratings by four people for six films:   The Aviator Crash Vera Drake Ray The Incredibles Don���t Look Back Bob 2 5  2 4  Eoin 4 2  5 1 2 Lisa 2 4 3   5 Maura 2 4  5 1   (Note: Ratings are in the range 1-5, where 1 indicates ���dislike��� and 5 indicates  ���like���).  Describe a neighbourhood based approach using Pearson Correlation and weighted averages to generate a prediction for Bob for the film ���Don���t Look Back���. Your answer should:        (8) ��� Describe the data given. ��� Outline the main steps in the neighbourhood based approach. ��� Show the steps required to predict a rating for ���Don���t Look Back��� for Bob.               (13) </p>
         </div>
     
         <div class="questions">
@@ -135,12 +119,12 @@
     
         <div class="questions">
             <h4 id="Q6.2" style="width: 60px"><span>6.</span><span>2.</span></h4>
-            <p>In distributed information retrieval, two of the main problems are source selection (identifying a good source to which send queries) and result fusion (merging results from different collections. The ability to perform these tasks well is often dependent on the quality of the site descriptions. Propose a suitable approach to generating useful descriptions.            (8)     </p>
+            <p>Outline an algorithm for efficiently identifying frequently occurring itemsets. (8)  </p>
         </div>
     
         <div class="questions">
             <h4 id="Q6.3" style="width: 60px"><span>6.</span><span>3.</span></h4>
-            <p>Given the vast quantities of information involved in modern retrieval systems, compression of information collections is an important task. With particular reference to collections in information retrieval, outline a suitable compression approach. (8)    </p>
+            <p>In distributed information retrieval, two of the main problems are source selection (identifying a good source to which send queries) and result fusion (merging results from different collections. The ability to perform these tasks well is often dependent on the quality of the site descriptions. Propose a suitable approach to generating useful descriptions.            (8)     </p>
         </div>
     
 </div>
