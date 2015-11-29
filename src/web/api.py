@@ -6,7 +6,7 @@ from flask import Flask, abort, request
 from ..model import Module, Paper
 from ..model.paper import UnparseableException, NoLinkException, InvalidPathException
 from ..model.paper_pdf import PaperNotFound
-from ..config import Session, APP_PORT
+from ..config import Session, APP_PORT, APP_HOST
 from werkzeug.contrib.cache import SimpleCache
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -181,4 +181,4 @@ def list_modules(format):
         return flask.render_template('modules.html', modules=modules)
 
 if __name__ == '__main__':
-    app.run(port=APP_PORT)
+    app.run(port=APP_PORT, host=APP_HOST)
