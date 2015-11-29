@@ -6,7 +6,9 @@
 </head>
 <body>
 <header>
-    <nav><p><a href="/modules/">Modules</a></p>
+    <nav><p>{% if self.back_link() -%}
+        <a href="{% block back_link %}{% endblock %}">&larr; Back to {% block back_title %}{% endblock %}</a>
+    {% endif %}<a href="/modules/">Modules</a></p>
     <h1>{% block page_title %}{% endblock %}</h1>
 </header>
 {% block body %}{% endblock %}

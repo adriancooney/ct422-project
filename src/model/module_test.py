@@ -28,12 +28,15 @@ session = Session()
 
 #     print json.dumps(ct422.similarity_analysis(paper))
 
-def test_analysis():
+# def test_analysis():
+#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+
+#     print ct422.latest_similarity_analysis(groupByYear=True)
+
+def test_popular():
     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 
-    print ct422.latest_similarity_analysis(groupByYear=True)
-
-
+    print ct422.find_most_popular_questions().head(50).to_dict(orient="records")
 # def test_get_questions():
 #     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 

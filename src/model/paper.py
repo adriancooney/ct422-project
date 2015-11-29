@@ -1,6 +1,7 @@
 import sys
 import slate
 import json
+import pytz
 import pycurl
 import logging
 import sqlalchemy
@@ -77,7 +78,7 @@ class Paper(Base):
         logging.info("Indexing paper %r" % self)
 
         self.indexed = True
-        self.indexed_at = datetime.utcnow()
+        self.indexed_at = datetime.now()
 
         try:
             if not self.pdf:
@@ -343,6 +344,13 @@ class Paper(Base):
     @staticmethod
     def getById(session, id):
         return session.query(Paper).filter(Paper.id == id).one()
+
+    @staticmethod
+    def get_latest(session, module):
+        return session.query(Paper).filter(
+            (Paper.module_id == module.id) & \
+            (Paper.parseable == True)
+        ).order_by(Paper.year_start, Paper.order_by_period).first()
 
 class InvalidPathException(Exception):
     pass

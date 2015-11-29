@@ -48,41 +48,43 @@ def get_module(module):
 
     try:
         module = Module.getByCode(session, module)
+        popular = module.find_most_popular_questions().head(50).to_dict(orient="records")
+
     except NoResultFound:
         return fail(404, "Module not found.")
 
-    return flask.render_template('module.html', module=module)
+    return flask.render_template('module.html', module=module, popular=popular)
 
-@app.route('/module/<module>/report/', methods=['GET'], defaults={ 'year': 'latest' })    
-@app.route('/module/<module>/<year>/report/', methods=['GET'])
-def get_module_report(module, year):
-    pass
-
-@app.route('/module/<module>.json', methods=['GET'])
-def get_module_json(module): 
+@app.route('/module/<module>/report/', defaults={ 'year': 'latest', 'period': 'winter' })    
+@app.route('/module/<module>/<year>/report/', defaults={ 'period': 'winter' })
+@app.route('/module/<module>/<year>/<period>/report/')
+def get_module_report(module, year, period):
     try:
-        module = module.upper()
-        key = 'module.%s' % module
+        module = Module.getByCode(session, module)
+        period = period.lower()
 
-        # Get it from the cache
-        data = cache.get(key)
+        try:
+            if year == 'latest':
+                # Use the most recent paper
+                paper = Paper.get_latest(session, module)
+            else:
+                year = int(year)
 
-        if not data:
-            # Get the module
-            module = session.query(Module).filter(Module.code == module).one()
+                print year, period, module.id
+                paper = session.query(Paper).filter(
+                    (Paper.year_start == year) & \
+                    (Paper.period == (period[0].upper() + period[1:])) & \
+                    (Paper.module_id == module.id)
+                ).one()
+        except NoResultFound:
+            return fail(404, "No paper found.")
 
-            if not module.is_indexed:
-                module.index()
+        analysis = module.similarity_analysis(paper)
 
-            analysis, paper = module.latest_similarity_analysis(groupByYear=True)
-
-            cache.set(key, (module, analysis, paper))
-        else:
-            module, analysis, paper = data
-
-        return flask.jsonify(analysis=analysis)
+        return flask.render_template('analysis.html', 
+            module=module, paper=paper, analysis=analysis)
     except NoResultFound:
-        return fail(404, "Module %s not found." % str(module))
+        return fail(404, "Module not found.")
 
 # Get the content of a paper
 # Example:
@@ -152,7 +154,6 @@ def get_paper(module, year, period, sitting, format):
             elif format == 'html':
                 return flask.render_template("question.html", question=question)
         else:
-            print "SERVING UP DAT SHIT"
             if format == 'json':
                 return flask.jsonify(paper=paper)
             elif format == 'html':
@@ -163,17 +164,6 @@ def get_paper(module, year, period, sitting, format):
         return fail(401, "Invalid period. Periods available: Winter, Summer, Autumn, Spring")
     except Exception, error:
         print error
-
-@app.route("/papers/<module>.json")
-def list_papers(module):
-    papers = session.query(Paper).filter(
-        Module.code.like(module.upper() + '%') & \
-        (Paper.module_id == Module.id)
-    ).all()
-
-    papers = [paper.to_dict() for paper in papers]
-
-    return flask.jsonify(papers=papers)
 
 @app.route("/modules/", defaults={ 'format': 'html' })
 @app.route("/modules.<format>")

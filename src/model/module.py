@@ -152,7 +152,7 @@ class Module(Base):
         for document, term in zip(*self.documents.nonzero()):
             self.tfidf_documents[document, term] = tfidf(document, term)
 
-    def find_similar_questions(self, paper, question):
+    def find_similar_questions(self, question):
         # Compute the tf-idf if not already completed
         if not self.vectorizer:
             self.vectorize()
@@ -182,7 +182,7 @@ class Module(Base):
             logging.info("Perform similarity analysis on question %r '%s..'" % (question, question.content[:30]))
 
             # Find similar questions for this specific questions within all the papers
-            similar_questions = self.find_similar_questions(paper, question)
+            similar_questions = self.find_similar_questions(question)
 
             # Only select questions over similarity threshold
             similar_relevant = similar_questions[similar_questions.similarity > Module.SIMILARITY_THRESHOLD].sort(
@@ -204,47 +204,36 @@ class Module(Base):
 
                 papers.append(data)
 
+            # Sort them
+            papers.sort(key=lambda p: p["paper"].year_start)
+
+            ordered_papers = OrderedDict()
+            for key, group in groupby(papers, lambda p: p["paper"].year_start):
+                ordered_papers[key] = [record for record in group]
+
             breakdown = {
                 'question': question,
-                'papers': papers
+                'papers': ordered_papers
             }
 
             analysis.append(breakdown)
 
         return analysis
 
-    def similarity_analysis_by_year(self, paper):
-        """Group the similarity analysis by year"""
-        analysis = self.similarity_analysis(paper)
+    def find_most_popular_questions(self):
+        """Find the most popular questions. 
 
-        for question in analysis:
-            papers = question["papers"]
+        This loops through all the questions, find's the similar questions
+        and ranks them by sum(similarity)
+        """
+        # Compute the tf-idf if not already completed
+        if not self.vectorizer:
+            self.vectorize()
 
-            # Sort the papers first by year
-            papers.sort(key=lambda p: p["paper"].year_start)
+        questions = [self.find_similar_questions(q) for q in self.questions]
+        popularity = [df.sum().similarity for df in questions]
 
-            ordered_papers = OrderedDict()
-
-            for key, group in groupby(papers, lambda p: p["paper"].year_start):
-                ordered_papers[key] = [record for record in group]
-
-            question["papers"] = ordered_papers
-
-        return analysis
-
-    def latest_similarity_analysis(self, groupByYear=False):
-        """Perform similarity analysis on the latest paper"""
-        session = Session.object_session(self)
-
-        # Get the latest paper
-        latest_paper = session.query(Paper).filter(
-            (Paper.module_id == self.id) & Paper.questions
-        ).order_by(Paper.year_start.desc(), Paper.order_by_period).first()
-
-        if groupByYear:
-            return self.similarity_analysis_by_year(latest_paper), latest_paper
-        else:
-            return self.similarity_analysis(latest_paper), latest_paper
+        return DataFrame(zip(self.questions, popularity), columns=["question", "popularity"]).sort("popularity", ascending=False)
 
     def is_indexed(self):
         """Determine whether a module is indexed or not."""

@@ -20,29 +20,39 @@ table {
     }
 }
 
+nav {
+    a {
+        display: inline-block;
+        margin: 12px;
+    }
+}
+
+.questions {
+    display: flex;
+
+    h4 {
+        text-align: right;
+        width: 80px;
+        padding: 0 8px;
+    }
+
+    p {
+        flex: 1;
+        font-family: "Droid Serif", serif;
+    }
+}
+
 .analysis {
     section {
         display: flex;
     }
 
-    .questions {
+    .questions{
         flex: 1;
-        display: flex;
-
-        h4 {
-            text-align: right;
-            width: 80px;
-            padding: 0 8px;
-        }
-
-        p {
-            flex: 1;
-            font-family: "Droid Serif", serif;
-        }
     }
 
     .stats {
-        width: 40%;
+        width: 60%;
 
         table {
             width: 100%;

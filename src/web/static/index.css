@@ -13,20 +13,26 @@ a {
 table td {
   padding: 6px; }
 
-.analysis section {
+nav a {
+  display: inline-block;
+  margin: 12px; }
+
+.questions {
   display: flex; }
-.analysis .questions {
-  flex: 1;
-  display: flex; }
-  .analysis .questions h4 {
+  .questions h4 {
     text-align: right;
     width: 80px;
     padding: 0 8px; }
-  .analysis .questions p {
+  .questions p {
     flex: 1;
     font-family: "Droid Serif", serif; }
+
+.analysis section {
+  display: flex; }
+.analysis .questions {
+  flex: 1; }
 .analysis .stats {
-  width: 40%; }
+  width: 60%; }
   .analysis .stats table {
     width: 100%; }
     .analysis .stats table tr td {
