@@ -1,0 +1,58 @@
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: "Source Sans Pro", sans-serif; }
+
+.analysis section {
+  display: flex; }
+.analysis .questions {
+  flex: 1;
+  display: flex; }
+  .analysis .questions h4 {
+    text-align: right;
+    width: 80px;
+    padding: 0 8px; }
+  .analysis .questions p {
+    flex: 1;
+    font-family: "Droid Serif", serif; }
+.analysis .stats {
+  width: 40%; }
+  .analysis .stats table {
+    width: 100%; }
+    .analysis .stats table tr td {
+      padding: 4px;
+      vertical-align: top;
+      text-align: center; }
+    .analysis .stats table tr:first-child td {
+      font-weight: bold;
+      font-size: 120%; }
+    .analysis .stats table tr td:first-child {
+      width: 80px;
+      text-align: right;
+      font-weight: normal;
+      font-size: 100%; }
+    .analysis .stats table td p {
+      font-size: 12px;
+      color: black;
+      padding: 4px;
+      font-size: 110%;
+      margin: 0; }
+    .analysis .stats table td i {
+      font-size: 12px; }
+    .analysis .stats table td .period-summer {
+      background-color: gold; }
+    .analysis .stats table td .period-winter {
+      background-color: LightSkyBlue; }
+    .analysis .stats table td .period-autumn {
+      background-color: Sienna; }
+    .analysis .stats table td .period-spring {
+      background-color: MediumSeaGreen; }
+
+.modules a {
+  display: inline-block;
+  padding: 8px; }
+  .modules a.indexed {
+    background: red; }
+
+/*# sourceMappingURL=index.css.map */

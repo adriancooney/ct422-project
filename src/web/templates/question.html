@@ -1,0 +1,8 @@
+{% extends 'views/base.html' %}
+
+{% block body %}
+<div class="question">
+    <h3 class="index">{{ question.pretty_path | join(".") }}</h3>
+    <p>{{question.content}}</p>
+</div>
+{% endblock %}

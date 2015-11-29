@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/index.css">
+</head>
+<body>
+<header>
+    <nav><p><a href="/modules/">Modules</a></p>
+    <h1>{% block page_title %}{% endblock %}</h1>
+</header>
+{% block body %}{% endblock %}
+</body>
+</html>

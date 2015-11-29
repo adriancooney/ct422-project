@@ -5,10 +5,10 @@ from ..config import Session
 
 session = Session()
 
-def test_module_download():
-    Paper.PAPER_DIR = "/tmp/ct422"
-    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
-    papers = ct422.index()
+# def test_module_download():
+#     Paper.PAPER_DIR = "/tmp/ct422"
+#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+#     papers = ct422.index(force=True)
 
 # def test_find_similar():
 #     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
@@ -28,10 +28,10 @@ def test_module_download():
 
 #     print json.dumps(ct422.similarity_analysis(paper))
 
-# def test_analysis():
-#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+def test_analysis():
+    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 
-#     print json.dumps(ct422.latest_similarity_analysis())
+    print ct422.latest_similarity_analysis(groupByYear=True)
 
 
 # def test_get_questions():

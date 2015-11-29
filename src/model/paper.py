@@ -42,7 +42,7 @@ class Paper(Base):
          (period == "Spring", 4))
     )
 
-    def __init__(self, module, name, period, sitting, year_start, year_stop, link, contents, document=None):
+    def __init__(self, module, name, period, sitting, year_start, year_stop, link):
         """The Paper class describes a Exam paper.
         
         Here we parse questions and store them in a neat array.
@@ -55,7 +55,6 @@ class Paper(Base):
         self.year_start = year_start
         self.year_stop = year_stop
         self.link = link
-        self.contents = contents
 
     def index(self):
         """Parse the paper's questions.
@@ -70,24 +69,12 @@ class Paper(Base):
         """
         logging.info("Indexing paper %r" % self)
 
-        if not self.link:
-            raise NoLinkException("No link attribute on this paper.")
-
-        if not self.PAPER_DIR:
-            raise RuntimeError("Paper.PAPER_DIR is not set.")
-
         session = Session.object_session(self)
 
         if not self.pdf:
             # Looks like we have no PDF associated with this paper
-            self.pdf = PaperPDF(paper_id=self.id)
-
-            # Download it
-            self.pdf.download(Paper.PAPER_DIR)
-
-            # Save it's download location to the database
-            session.add(self.pdf)
-            session.commit()
+            # Download it.
+            self.download()
 
         try:
             # Get the contents of the PDF
@@ -101,7 +88,8 @@ class Paper(Base):
 
         # Parse the pages contents
         # TODO: Parse first page.
-        self.questions = Paper.parse_pages(pages[1:])
+        # TODO: Discuss: should we insert questions without content?
+        self.questions = filter(lambda q: bool(q.content), Paper.parse_pages(pages[1:]))
 
         # Add self to commit
         session.add(self)
@@ -109,10 +97,28 @@ class Paper(Base):
         # Save to db
         session.commit()
 
+    def download(self):
+        """Download the PDF and save it to the database"""
+
+        if not self.link:
+            raise NoLinkException("No link attribute on this paper.")
+
+        if not self.PAPER_DIR:
+            raise RuntimeError("Paper.PAPER_DIR is not set.")
+
+        self.pdf = PaperPDF(paper_id=self.id)
+
+        # Download it
+        self.pdf.download(Paper.PAPER_DIR)
+
+        # Save it's download location to the database
+        session.add(self.pdf)
+        session.commit()
+
     def __repr__(self):
-        return "<Paper(id={id}, {module}, {year_start}/{year_stop}, {period}, {sitting}, link={link})>".format(
+        return "<Paper(id={id}, {module}, {year_start}/{year_stop}, {period}, {sitting}, link={link}{indexed})>".format(
             id=self.id, module=self.module.code, year_start=self.year_start, year_stop=self.year_stop,
-            sitting=self.sitting, period=self.period, link=(self.link != None))
+            sitting=self.sitting, period=self.period, link=(self.link != None), indexed=(", indexed" if self.is_indexed() else ""))
 
     def get_question(self, *path):
         """Get a questions contents from a paper. If none available, return the nearest estimate
@@ -139,7 +145,7 @@ class Paper(Base):
 
     def is_indexed(self):
         """Return whether a paper is indexed or not."""
-        return bool(self.contents) or bool(self.pdf)
+        return bool(self.questions)
 
     def to_dict(self):
         return {
@@ -149,6 +155,10 @@ class Paper(Base):
             'sitting': self.sitting,
             'period': self.period
         }
+
+    def get_link(self, module, format=None):
+        return "/paper/{}/{}/{}{}".format(
+            module.code, self.year_start, self.period.lower(), "." + format if format else "")
 
     ######################################
     # Paper parser.
@@ -177,7 +187,7 @@ class Paper(Base):
     index_question = (pp.Word("qQ", exact=1).suppress() + pp.Optional(".").suppress() + index_type + pp.Optional(".").suppress()).setParseAction(lambda s, l, t: t[0].setNotation("question"))
 
     # Define final index token with optional Question token before formatted index
-    index = (
+    qindex = (
         # Whitespace is required before each index (e.g. "hello world." the d. would be take for an index)
         _ + \
         # Optional "Question." before
@@ -194,7 +204,7 @@ class Paper(Base):
     )("section")
 
     # Entry point for the parser
-    entry = section ^ index
+    entry = section ^ qindex
 
     @staticmethod
     def parse_pages(pages):
@@ -222,10 +232,10 @@ class Paper(Base):
         for token, start, end in Paper.entry.leaveWhitespace().scanString(pages, overlap=True):
             # Tiny function to push the current question onto the stack
             def push():
-                global question
-                question = Question(stack)
                 stack.append(index)
-                questions.append(Question(stack))
+                question = Question(stack)
+                questions.append(question)
+                return question
 
             index = token[0] # The incoming index
 
@@ -234,7 +244,7 @@ class Paper(Base):
             # If the container is the paper, just push the question
             if len(stack) == 0:
                 logging.info("1. Pushing top level index %r." % index)
-                push()
+                question = push()
                 continue
 
             last_index = stack[-1] # The last index is the last item in the stack
@@ -245,7 +255,7 @@ class Paper(Base):
                 if last_index.isNext(index):
                     logging.info("1.1.1 Pushing index with same type as last index and in sequence.")
                     stack.pop()
-                    push()
+                    question = push()
                 else:
                     logging.info("1.1.2 Question with similar indexes but not in sequence, ignoring.")
                     continue
@@ -269,7 +279,7 @@ class Paper(Base):
                     if parent_index.isNext(index):
                         logging.info("1.2.1.1 Index in sequence, pushing into stack.")
                         stack = stack[:n]
-                        push()
+                        question = push()
                     else:
                         logging.info("1.2.1.2 Index not in sequence, ignoring")
                         continue
@@ -279,7 +289,7 @@ class Paper(Base):
                 # a section, we can just continue. 
                 elif index.i == 1 or last_index.is_section: 
                     logging.info("1.2.2 Pushing new question %r." % index )
-                    push()
+                    question = push()
                 else:
                     logging.info("1.2.3 New index value not first in sequence, ignoring.")
                     continue

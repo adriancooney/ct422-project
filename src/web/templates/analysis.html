@@ -1,96 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{module.code}} Analysis</title>
-    <style type="text/css">
-        * { box-sizing: border-box }
+{% extends 'views/base.html' %}
 
-        body {
-            font-family: "Source Sans Pro", sans-serif;
-        }
+{% block title %}{{module.code}} Analysis{% endblock %}
 
-        section {
-            display: flex;
-        }
+{% block page_title %}{{module.code}} - {{module.name}}{% endblock %}
 
-        .questions {
-            flex: 1;
-            display: flex;
-        }
+{% block body %}
+<div class="analysis">
+    <p>Perform similarity analysis on <a href="{{ paper.get_link(module, format='pdf') }}">{{paper.year_start}} ({{paper.period}}) {{module.name}} paper.</a></p>
 
-        .questions h4 {
-            text-align: right;
-            width: 80px;
-            padding: 0 8px;
-        }
-
-        .questions p {
-            flex: 1;
-            font-family: "Droid Serif", serif;
-        }
-
-        .stats {
-            width: 40%;
-        }
-
-        .stats table {
-            width: 100%;
-        }
-
-        .stats table tr td {
-            padding: 4px;
-            vertical-align: top;
-            text-align: center;
-        }
-
-        .stats table tr:first-child td {
-            font-weight: bold;
-            font-size: 120%;
-        }
-
-        .stats table tr td:first-child {
-            width: 80px;
-            text-align: right;
-            font-weight: normal;
-            font-size: 100%;
-        }      
-
-        .stats table td p {
-            font-size: 12px;
-            color: white;
-            padding: 4px;
-            font-size: 110%;
-            margin: 0;
-        }        
-
-        .stats table td .period-summer { background-color: gold; }
-        .stats table td .period-winter { background-color: LightSkyBlue; }
-        .stats table td .period-autumn { background-color: Sienna; }
-        .stats table td .period-spring { background-color: MediumSeaGreen; }
-    </style>
-</head>
-<body>
-<header>
-    <h1>{{module.code}} - {{module.name}}</h1>
-    <p>Perform similarity analysis on <a href="/paper/{{module.code}}/{{paper.year_start}}/{{paper.period | lower}}.pdf">{{paper.year_start}} ({{paper.period}}) {{module.name}} paper.</a></p>
-</header>
-{% for item in analysis %}
-<section>
-    <div class="questions">
-        <h4 style="width: {{ (item.question.index | length) * 30 }}px">{% for i in item.question.index %}<span>{{i}}.</span>{% endfor %}</h4>
-        <p>{{item.question.content}}</p>
-    </div>
-    <div class="stats">
-        <table>
-            <tr><td>Paper</td>{% for year, ps in item.papers.iteritems() %}<td><a href="/paper/{{module.code}}/{{year}}.pdf">{{year}}</a></td>{% endfor %}</tr>
-            <tr><td>Question</td>{% for year, subpapers in item.papers.iteritems() -%}
-                <td>{% for paper in (subpapers | sort(attribute='similarity', reverse=True)) -%}
-                    <p class="period-{{paper.period | lower}}">{% for i in paper.question.index %}<span>{{i}}.</span>{% endfor %} ({{ "%.2f" | format(paper.similarity) }})</p>
-                {%- endfor %}</td>
-            {%- endfor %}</tr>
-        </table>
-    </div>
-</section>
-{% endfor %}
-</body>
-</html>
+    {% for item in analysis %}
+    <section>
+        <div class="questions">
+            <h4 style="width: {{ (item.question.path | length) * 30 }}px">{% for i in item.question.pretty_path %}<span>{{i}}.</span>{% endfor %}</h4>
+            <p>{{item.question.content}}</p>
+        </div>
+        <div class="stats">
+            <table>
+                <tr><td>Paper</td>{% for year, ps in item.papers.iteritems() %}<td>{{year}}</td>{% endfor %}</tr>
+                <tr><td>Question</td>{% for year, subpapers in item.papers.iteritems() -%}
+                    <td>{% for suba in (subpapers | sort(attribute='similarity', reverse=True)) -%}
+                        <p class="period-{{suba.paper.period | lower}}">
+                            <a href="{{ suba.paper.get_link(module) }}#Q{{ suba.question.path | join('.') }}">{% for i in suba.question.pretty_path %}<span>{{i}}.</span>{% endfor %}</a><br>
+                        <i>({{suba.question.paper_id}}, {{ "%.2f" | format(suba.similarity) }})</i></p>
+                    {%- endfor %}</td>
+                {%- endfor %}</tr>
+            </table>
+        </div>
+    </section>
+    {% endfor %}
+</div>
+{% endblock %}

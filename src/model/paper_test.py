@@ -57,11 +57,9 @@ def test_index():
     paper = session.query(Paper).filter(Paper.id == 3907).first()
 
     Paper.PAPER_DIR = "/tmp"
+    print paper
 
     paper.index()
-
-    for q in paper.questions:
-        print q.pretty_path
 
 # def test_get_question():
 #     paper = session.query(Paper).filter(Paper.id == 3907).first()

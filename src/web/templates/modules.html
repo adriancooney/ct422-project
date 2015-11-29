@@ -1,0 +1,11 @@
+{% extends 'views/base.html' %}
+
+{% block title %}All Modules{% endblock %}
+
+{% block page_title %}Modules{% endblock %}
+
+{% block body %}
+<div class="modules">
+    <p>{% for module in modules %}<a {% if module.is_indexed %}class="indexed"{% endif %} href="/module/{{module.code}}/report">{{module.code}}</a>{% endfor %}</p>
+</div>
+{% endblock %}

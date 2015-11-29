@@ -1,0 +1,82 @@
+* { box-sizing: border-box }
+
+body {
+    font-family: "Source Sans Pro", sans-serif;
+}
+.analysis {
+    section {
+        display: flex;
+    }
+
+    .questions {
+        flex: 1;
+        display: flex;
+
+        h4 {
+            text-align: right;
+            width: 80px;
+            padding: 0 8px;
+        }
+
+        p {
+            flex: 1;
+            font-family: "Droid Serif", serif;
+        }
+    }
+
+    .stats {
+        width: 40%;
+
+        table {
+            width: 100%;
+
+            tr td {
+                padding: 4px;
+                vertical-align: top;
+                text-align: center;
+            }
+
+            tr:first-child td {
+                font-weight: bold;
+                font-size: 120%;
+            }
+
+            tr td:first-child {
+                width: 80px;
+                text-align: right;
+                font-weight: normal;
+                font-size: 100%;
+            }      
+
+            td {
+                p {
+                    font-size: 12px;
+                    color: black;
+                    padding: 4px;
+                    font-size: 110%;
+                    margin: 0;
+                }
+
+                i {
+                    font-size: 12px;
+                }
+
+                .period-summer { background-color: gold; }
+                .period-winter { background-color: LightSkyBlue; }
+                .period-autumn { background-color: Sienna; }
+                .period-spring { background-color: MediumSeaGreen; }
+            }
+        }
+    }
+}
+
+.modules {
+    a {
+        display: inline-block;
+        padding: 8px;
+
+        &.indexed {
+            background: red;
+        }
+    }
+}

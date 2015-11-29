@@ -21,7 +21,7 @@ from paper import NoLinkException, UnparseableException, PaperNotFound, Paper
 from base import Base
 
 class Module(Base):
-    SIMILARITY_THRESHOLD = 0.7
+    SIMILARITY_THRESHOLD = 0.2
 
     __tablename__ = "module"
 
@@ -44,7 +44,11 @@ class Module(Base):
 
         for paper in self.papers:
             try:
-                paper.index()
+                if not paper.is_indexed():
+                    print "Indexing %r" % paper
+                    paper.index()
+                else:
+                    print "Skipping indexing paper %r" % paper
             except NoLinkException:
                 logging.info("No link for paper %r" % paper)
             except UnparseableException:
@@ -84,17 +88,14 @@ class Module(Base):
         return "<Module(id={}, code={}, papers={})>".format(self.id, self.code, len(self.papers))
 
     def get_questions(self):
-        """This methods returns a list of all the questions in the form of:
-
-            (Paper, (question_path), content)
-            (<Paper(id=1)>, (1, 2, 1), "<question document>")"""
+        """This methods returns a list of all the questions."""
 
         questions = []
         for paper in self.papers:
-            if paper.contents:
-                questions += [(paper, p, q["content"], i) for p, q, i in paper.get_questions()]
+            if paper.questions:
+                questions += paper.questions
 
-        return DataFrame(questions, columns=["Paper", "Path", "Content", "Index"])
+        return questions
 
     def vectorize(self):
         """
@@ -134,7 +135,7 @@ class Module(Base):
         self.vectorizer = CountVectorizer(stop_words=stopwords, decode_error="replace")
         
         # Fit the questions and save the word counts
-        self.documents = self.vectorizer.fit_transform(self.questions.Content)
+        self.documents = self.vectorizer.fit_transform(map(lambda q: q.content, self.questions))
         self.dictionary = self.vectorizer.get_feature_names()
 
         # So now we have counts for every word in the every document (i.e. tf)
@@ -152,98 +153,85 @@ class Module(Base):
         for document, term in zip(*self.documents.nonzero()):
             self.tfidf_documents[document, term] = tfidf(document, term)
 
-
-    def find_similar_questions(self, paper, path):
+    def find_similar_questions(self, paper, question):
         # Compute the tf-idf if not already completed
         if not self.vectorizer:
             self.vectorize()
 
-        def is_question(i):
-            question = self.questions.iloc[i]
-            return question["Path"] == path and question["Paper"] == paper
-
         # Grab the question we have to find similar for's index
-        question = self.questions.select(is_question)
-        question_index = question.index[0]
+        question_index = 0
+        for i, q in enumerate(self.questions):
+            if question is q:
+                question_index = i
+                break
 
-        # Transform our query
+        # Grab our question vector
         query = self.tfidf_documents[question_index, :]
 
         # Compute the similarity and return a gram matrix
         # of D_n x Query and stick it in a datafram
-        similarity = DataFrame(cosine_similarity(self.tfidf_documents, query), columns=["similarity"])
+        similarity = cosine_similarity(self.tfidf_documents, query).flatten()
 
-        # Join the similarity onto the questions datafame
-        joined = concat([self.questions, similarity], axis=1)
-
-        return joined.sort_values(["similarity"], ascending=False)
+        return DataFrame(zip(self.questions, similarity), columns=["question", "similarity"])
 
     def similarity_analysis(self, paper):
         """Perform a similarity analysis over all the questions in paper"""
         analysis = []
 
         # Get all the questions in the paper
-        for path, question, index in paper.get_questions():
-            logging.info("Perform similarity analysis on question %r '%s..'" % (question, question["content"][:30]))
+        for question in paper.questions:
+            logging.info("Perform similarity analysis on question %r '%s..'" % (question, question.content[:30]))
 
             # Find similar questions for this specific questions within all the papers
-            similar_questions = self.find_similar_questions(paper, path)
+            similar_questions = self.find_similar_questions(paper, question)
 
             # Only select questions over similarity threshold
-            similar_relevant = similar_questions[(similar_questions.similarity > Module.SIMILARITY_THRESHOLD)]
+            similar_relevant = similar_questions[similar_questions.similarity > Module.SIMILARITY_THRESHOLD].sort(
+                "similarity", ascending=False)
 
             papers = []
             for i, row in similar_relevant.iterrows():
-                relevant_paper = row["Paper"]
-                relevant_question_path = row["Path"]
+                relevant_question = row.question
 
                 # Prevent similarity analysis on same paper
-                if relevant_paper == paper:
+                if relevant_question.paper == paper:
                     continue
 
-                data = relevant_paper.to_dict()
-                relevant_question, relevant_question_index = relevant_paper.get_question(*relevant_question_path)
-
-                data['similarity'] = row.similarity
-                data['question'] = {
-                    'index': relevant_question_index,
-                    'path': relevant_question_path,
-                    'content': relevant_question["content"]
+                data = {
+                    'paper': relevant_question.paper,
+                    'similarity': row.similarity,
+                    'question': relevant_question
                 }
 
                 papers.append(data)
 
             breakdown = {
-                'question': {
-                    'content': question["content"],
-                    'path': path,
-                    'index': index
-                },
+                'question': question,
                 'papers': papers
             }
 
             analysis.append(breakdown)
 
-        return analysis, paper
+        return analysis
 
     def similarity_analysis_by_year(self, paper):
         """Group the similarity analysis by year"""
-        analysis, paper = self.similarity_analysis(paper)
+        analysis = self.similarity_analysis(paper)
 
         for question in analysis:
             papers = question["papers"]
 
             # Sort the papers first by year
-            papers.sort(key=lambda p: p["years"][0])
+            papers.sort(key=lambda p: p["paper"].year_start)
 
             ordered_papers = OrderedDict()
 
-            for key, group in groupby(papers, lambda p: p["years"][0]):
+            for key, group in groupby(papers, lambda p: p["paper"].year_start):
                 ordered_papers[key] = [record for record in group]
 
             question["papers"] = ordered_papers
 
-        return analysis, paper
+        return analysis
 
     def latest_similarity_analysis(self, groupByYear=False):
         """Perform similarity analysis on the latest paper"""
@@ -251,11 +239,10 @@ class Module(Base):
 
         # Get the latest paper
         latest_paper = session.query(Paper).filter(
-            (Paper.module_id == self.id) & \
-            (Paper.contents != None)
+            (Paper.module_id == self.id) & Paper.questions
         ).order_by(Paper.year_start.desc(), Paper.order_by_period).first()
 
         if groupByYear:
-            return self.similarity_analysis_by_year(latest_paper)
+            return self.similarity_analysis_by_year(latest_paper), latest_paper
         else:
-            return self.similarity_analysis(latest_paper)
+            return self.similarity_analysis(latest_paper), latest_paper
