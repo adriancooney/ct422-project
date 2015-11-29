@@ -54,7 +54,7 @@ session = Session()
 #     Paper.section.leaveWhitespace().parseString("Section 1 ")
 
 def test_index():
-    paper = session.query(Paper).filter(Paper.id == 3907).first()
+    paper = session.query(Paper).filter(Paper.id == 3878).first()
 
     Paper.PAPER_DIR = "/tmp"
     print paper

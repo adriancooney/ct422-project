@@ -1,9 +1,12 @@
+import sys
 import slate
 import json
+import pytz
 import pycurl
 import logging
 import sqlalchemy
 import pyparsing as pp
+from datetime import datetime
 from os.path import join
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -12,9 +15,8 @@ from question import Question
 from index import Index
 from paper_pdf import PaperPDF, PaperNotFound
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 from sqlalchemy.orm.session import Session
-from sqlalchemy.dialects.postgresql import JSON
 
 class Paper(Base):
     PAPER_DIR = None
@@ -29,10 +31,16 @@ class Paper(Base):
     sitting = Column(Integer)
     year_start = Column(Integer)
     year_stop = Column(Integer)
+
     pdf = relationship("PaperPDF", backref="paper", uselist=False)
-    questions = relationship("Question", backref="paper")
     link = Column(String)
+
+    questions = relationship("Question", backref="paper")
     raw_contents = Column(Text)
+
+    indexed = Column(Boolean)
+    indexed_at = Column(DateTime)
+    parseable = Column(Boolean)
 
     # Order by paper period
     order_by_period = sqlalchemy.sql.expression.case(
@@ -69,32 +77,45 @@ class Paper(Base):
         """
         logging.info("Indexing paper %r" % self)
 
-        session = Session.object_session(self)
-
-        if not self.pdf:
-            # Looks like we have no PDF associated with this paper
-            # Download it.
-            self.download()
+        self.indexed = True
+        self.indexed_at = datetime.now()
 
         try:
-            # Get the contents of the PDF
-            pages = [unicode(page, errors='replace') for page in self.pdf.get_contents()]
+            if not self.pdf:
+                # Looks like we have no PDF associated with this paper
+                # Download it.
+                self.download()
+
+            try:
+                # Get the contents of the PDF
+                pages = [unicode(page, errors='replace') for page in self.pdf.get_contents()]
+            except:
+                # Catch any slate.PDF exceptions and convert them to Unparsable
+                raise UnparseableException()
+
+            # Save the raw content
+            self.raw_contents = ''.join(pages)
+
+            # Parse the pages contents
+            # TODO: Parse first page.
+            # TODO: Discuss: should we insert questions into the database without content (i.e. just keep the indices)?
+            self.questions = filter(lambda q: bool(q.content), Paper.parse_pages(pages[1:]))
         except:
-            # Catch any slate.PDF exceptions and convert them to Unparsable
-            raise UnparseableException()
+            # Save the indexing information
+            self.save()
 
-        # Save the raw content
-        self.raw_contents = ''.join(pages)
+            # Re-raise
+            raise sys.exc_info()
 
-        # Parse the pages contents
-        # TODO: Parse first page.
-        # TODO: Discuss: should we insert questions without content?
-        self.questions = filter(lambda q: bool(q.content), Paper.parse_pages(pages[1:]))
+        # If it got this far, it means no UnparseableException has been
+        # raised and we've parsed the paper!
+        self.parseable = True
+        self.save()
 
-        # Add self to commit
+    def save(self):
+        """Save self to the database"""
+        session = Session.object_session(self)
         session.add(self)
-
-        # Save to db
         session.commit()
 
     def download(self):
@@ -112,6 +133,7 @@ class Paper(Base):
         self.pdf.download(Paper.PAPER_DIR)
 
         # Save it's download location to the database
+        session = Session.object_session(self)
         session.add(self.pdf)
         session.commit()
 
@@ -145,7 +167,7 @@ class Paper(Base):
 
     def is_indexed(self):
         """Return whether a paper is indexed or not."""
-        return bool(self.questions)
+        return self.indexed
 
     def to_dict(self):
         return {
@@ -314,6 +336,21 @@ class Paper(Base):
             raise UnparseableException()
 
         return questions
+
+    #####################################
+    # SQL methods
+    #####################################
+    
+    @staticmethod
+    def getById(session, id):
+        return session.query(Paper).filter(Paper.id == id).one()
+
+    @staticmethod
+    def get_latest(session, module):
+        return session.query(Paper).filter(
+            (Paper.module_id == module.id) & \
+            (Paper.parseable == True)
+        ).order_by(Paper.year_start, Paper.order_by_period).first()
 
 class InvalidPathException(Exception):
     pass

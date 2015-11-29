@@ -1,5 +1,8 @@
 {% extends 'views/base.html' %}
 
+{% block back_title %}{{paper.module.code}}{% endblock %}
+{% block back_link %}{{ url_for('get_module', module=paper.module.code) }}{% endblock %}
+
 {% block body %}
 <div class="paper">
     {% for question in paper.questions %}

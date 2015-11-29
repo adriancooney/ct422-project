@@ -1,12 +1,14 @@
 {% extends 'views/base.html' %}
 
 {% block title %}{{module.code}} Analysis{% endblock %}
+{% block page_title %}{{module.code}} Analysis on the {{paper.year_start}} {{paper.period}} paper{% endblock %}
 
-{% block page_title %}{{module.code}} - {{module.name}}{% endblock %}
+{% block back_title %}{{module.code}}{% endblock %}
+{% block back_link %}{{ url_for('get_module', module=module.code) }}{% endblock %}
 
 {% block body %}
 <div class="analysis">
-    <p>Perform similarity analysis on <a href="{{ paper.get_link(module, format='pdf') }}">{{paper.year_start}} ({{paper.period}}) {{module.name}} paper.</a></p>
+    <p>Below is the similarity analysis comparing all the questions from the {{paper.year_start}} {{paper.period}} (<a href="{{ paper.get_link(module, format='pdf') }}">PDF</a>) to all the questions (we managed to index) in the {{module.code}} module. </p>
 
     {% for item in analysis %}
     <section>
@@ -21,7 +23,7 @@
                     <td>{% for suba in (subpapers | sort(attribute='similarity', reverse=True)) -%}
                         <p class="period-{{suba.paper.period | lower}}">
                             <a href="{{ suba.paper.get_link(module) }}#Q{{ suba.question.path | join('.') }}">{% for i in suba.question.pretty_path %}<span>{{i}}.</span>{% endfor %}</a><br>
-                        <i>({{suba.question.paper_id}}, {{ "%.2f" | format(suba.similarity) }})</i></p>
+                        <i>({{ "%.f" | format(suba.similarity * 100) }}% similar)</i></p>
                     {%- endfor %}</td>
                 {%- endfor %}</tr>
             </table>
