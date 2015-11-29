@@ -4,3 +4,4 @@ __pycache__
 .cache
 *.pyc
 *.sublime-workspace
+src/config.py
