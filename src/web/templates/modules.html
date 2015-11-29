@@ -6,6 +6,8 @@
 
 {% block body %}
 <div class="modules">
-    <p>{% for module in modules %}<a {% if module.is_indexed() %}class="indexed"{% endif %} href="/module/{{module.code}}/">{{module.code}}</a>{% endfor %}</p>
+    <ul>
+        {% for module in modules %}<li><a {% if module.is_indexed() %}class="indexed"{% endif %} href="/module/{{module.code}}/">{{module.code}} - {{module.name}}</a></li>{% endfor %}
+    </ul>
 </div>
 {% endblock %}

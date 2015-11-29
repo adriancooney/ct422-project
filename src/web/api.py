@@ -2,6 +2,7 @@ import flask
 import logging
 import os.path
 import sqlalchemy
+import ..config
 from flask import Flask, abort, request
 from ..model import Module, Paper
 from ..model.paper import UnparseableException, NoLinkException, InvalidPathException
@@ -48,12 +49,16 @@ def get_module(module):
 
     try:
         module = Module.getByCode(session, module)
-        popular = module.find_most_popular_questions().head(50).to_dict(orient="records")
+
+        if module.is_indexed():
+            popular = module.find_most_popular_questions().head(50).to_dict(orient="records")
+            return flask.render_template('module.html', module=module, popular=popular)
+        else:
+            return flask.render_template('module.html', module=module)
 
     except NoResultFound:
         return fail(404, "Module not found.")
 
-    return flask.render_template('module.html', module=module, popular=popular)
 
 @app.route('/module/<module>/report/', defaults={ 'year': 'latest', 'period': 'winter' })    
 @app.route('/module/<module>/<year>/report/', defaults={ 'period': 'winter' })
@@ -177,4 +182,4 @@ def list_modules(format):
         return flask.render_template('modules.html', modules=modules)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=config.APP_PORT)

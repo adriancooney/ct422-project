@@ -1,7 +1,6 @@
 import sys
 import slate
 import json
-import pytz
 import pycurl
 import logging
 import sqlalchemy

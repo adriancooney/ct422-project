@@ -1,0 +1,17 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from model import Paper
+
+PAPER_DIR = "<PAPER DOWNLOAD DIR>"
+DB_USER = "<username>"
+DB_PASS = None # Leave None if none
+DB_HOST = "localhost"
+DB_PORT = 5432
+DB_NAME = "exam_papers"
+
+engine = create_engine('postgresql+psycopg2://{user}{password}@{host}:{port}/{name}'.format(
+    user=DB_USER, host=DB_HOST, port=DB_PORT, name=DB_NAME, password=(":" + DB_PASS if DB_PASS else "")))
+
+Session = sessionmaker(bind=engine)
+
+Paper.PAPER_DIR = PAPER_DIR

@@ -54,16 +54,18 @@
         {% endfor %}
     </table>
 
-    <h3>Popular questions in {{module.code}}</h3>
+    {% if popular %}
+        <h3>Popular questions in {{module.code}}</h3>
 
-    {% for pop in popular %}
-        <div class="questions">
-            <h4 id="Q{{pop.path | join('.')}}" style="width: {{ (pop.question.path | length) * 30 }}px">{% for i in pop.question.path %}<span>{{i}}.</span>{% endfor %}</h4>
-            <div>
-                <h3>{{pop.question.paper.year_start}} {{pop.question.paper.period}} ({{ "%.2f" | format(pop.popularity) }} cumulative similarity)</h3>
-                <p>{{pop.question.content}}</p>
+        {% for pop in popular %}
+            <div class="questions">
+                <h4 id="Q{{pop.path | join('.')}}" style="width: {{ (pop.question.path | length) * 30 }}px">{% for i in pop.question.path %}<span>{{i}}.</span>{% endfor %}</h4>
+                <div>
+                    <h3>{{pop.question.paper.year_start}} {{pop.question.paper.period}} ({{ "%.2f" | format(pop.popularity) }} cumulative similarity)</h3>
+                    <p>{{pop.question.content}}</p>
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}
