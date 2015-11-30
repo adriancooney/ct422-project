@@ -27,6 +27,12 @@ nav {
     }
 }
 
+.categories {
+    strike {
+        color: #ccc;
+    }
+}
+
 .questions {
     display: flex;
 
@@ -103,7 +109,8 @@ nav {
         padding: 8px;
 
         &.indexed {
-            background: red;
+            background: #B0E57C;
+            border-radius: 6px;
         }
     }
 }

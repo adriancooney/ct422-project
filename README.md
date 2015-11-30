@@ -4,7 +4,7 @@ The project is written in Python and requires Python 2.7 to be installed. It use
 ### Dependencies
 This project has the following dependencies:
 
-    pip install flask pyparsing sqlalchemy pycurl slate sklearn nltk pandas numpy scipy
+    pip install flask pyparsing sqlalchemy pycurl slate sklearn nltk pandas numpy scipy psycopg2
 
 For the scraper:
 
@@ -14,16 +14,15 @@ For the scraper:
 Rename `src/config.py.sample` to `src/config.py` and update the variables inside accordingly. `PAPER_DIR` is a directory to download the exam papers to.
 
 ### Database
-Connect to PostgreSQL and create the database `exam_papers`
+Import the database dump in `data/dumps/exam_papers.sql` using the `psql` tool:
 
-    CREATE DATABASE exam_papers;
-
-And import the database dump in `data/dumps/exam_papers.sql` using the `psql` tool:
-
-    psql -d exam_papers -U username -f data/dumps/exam_papers.sql
+    psql -f data/dumps/exam_papers-29112015.sql
 
 #### Troubleshooting
-* `pycurl` requires `curl` to be installed.
-* `nltk` requires running `nltk.download()` to download it's files. We only use the `english.pickle` but it's not that smart. It may take a while.
+* `pycurl` requires `libcurl` to be installed.
+    - On debian: `sudo apt-get install libcurl4-openssl-dev`
+* `pandas` requires `python-dev`.l
+* `nltk` requires running `nltk.download()` to download it's files. Type `d` and download the `stopwords` dataset.
+* `slate` is broken with the latest version of it's dependency, `PDFMiner`. Fix it by running `sudo pip install --upgrade --ignore-installed slate==0.3 pdfminer==20110515`.
 
 ### Installing

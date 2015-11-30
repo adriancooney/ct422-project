@@ -17,6 +17,9 @@ nav a {
   display: inline-block;
   margin: 12px; }
 
+.categories strike {
+  color: #ccc; }
+
 .questions {
   display: flex; }
   .questions h4 {
@@ -68,7 +71,8 @@ nav a {
   display: inline-block;
   padding: 8px; }
   .modules a.indexed {
-    background: red; }
+    background: #B0E57C;
+    border-radius: 6px; }
 
 .module .not-indexed {
   background: #B4D8E7; }

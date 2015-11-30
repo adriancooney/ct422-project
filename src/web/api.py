@@ -3,7 +3,7 @@ import logging
 import os.path
 import sqlalchemy
 from flask import Flask, abort, request
-from ..model import Module, Paper
+from ..model import Module, Paper, Category
 from ..model.paper import UnparseableException, NoLinkException, InvalidPathException
 from ..model.paper_pdf import PaperNotFound
 from ..config import Session, APP_PORT, APP_HOST
@@ -131,7 +131,7 @@ def get_paper(module, year, period, sitting, format):
                 if not format == 'pdf':
                     return fail(400, "Unable to parse paper %r" % paper)
             except NoLinkException:
-                return fail(404, "Paper %r has no link")
+                return fail(404, "Paper %r has no link" % paper)
             except PaperNotFound:
                 return fail(404, "PDF not found on NUIG Exam papers for %r." % paper)
 
@@ -169,16 +169,22 @@ def get_paper(module, year, period, sitting, format):
     except Exception, error:
         print error
 
-@app.route("/modules/", defaults={ 'format': 'html' })
-@app.route("/modules.<format>")
-def list_modules(format):
-    # FUCK IT TAKE EM ALL
-    modules = session.query(Module).order_by(Module.code).all()
+@app.route("/modules/<category>/")
+def list_category_modules(category):
+    try:
+        category = session.query(Category).filter(
+            Category.code == category.upper()
+        ).one()
 
-    if format == 'json':
-        return flask.jsonify(modules=modules)
-    elif format == 'html':
-        return flask.render_template('modules.html', modules=modules)
+        return flask.render_template('modules.html', category=category)
+    except:
+        return fail(404, "Category not found.")
+
+@app.route("/")
+def list_categories():
+    categories = session.query(Category).order_by(Category.code).all()
+
+    return flask.render_template('module_categories.html', categories=categories)
 
 if __name__ == '__main__':
     app.run(port=APP_PORT, host=APP_HOST)

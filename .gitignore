@@ -5,3 +5,4 @@ __pycache__
 *.pyc
 *.sublime-workspace
 src/config.py
+.sass-cache
