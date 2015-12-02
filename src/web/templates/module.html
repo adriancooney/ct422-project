@@ -5,6 +5,9 @@
 
 {% block page_title %}Module {{module.code}} - {{module.category.name}} ({{module.category.code}}) {% endblock %}
 
+{% block back_title %}{{module.category.name}}{% endblock %}
+{% block back_link %}{{ url_for('list_category_modules', category=module.category.code) }}{% endblock %}
+
 {% block body %}
 <div class="module">
     <table>

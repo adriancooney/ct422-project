@@ -4,6 +4,9 @@
 
 {% block page_title %}{{category.name}} Modules{% endblock %}
 
+{% block back_title %}Module Categories{% endblock %}
+{% block back_link %}{{ url_for('list_categories') }}{% endblock %}
+
 {% block body %}
 <div class="modules">
     <ul>

@@ -187,4 +187,4 @@ def list_categories():
     return flask.render_template('module_categories.html', categories=categories)
 
 if __name__ == '__main__':
-    app.run(port=APP_PORT, host=APP_HOST)
+    app.run(port=APP_PORT, host=APP_HOST, debug=True)
