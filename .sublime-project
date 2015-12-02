@@ -8,7 +8,7 @@
 
     "build_systems": [
         {
-            "name": "py.test",
+            "name": "Py.test",
             "cmd": ["py.test", "-s", "${file_name/(?<!_test)\\.py/_test.py/}"],
             "working_dir": "${file_path}",
             "selector": "source.python",
@@ -16,9 +16,16 @@
         },
 
         {
-            "name": "web",
+            "name": "Web Server",
             "cmd": ["python", "-m", "project.src.web.api"],
             "working_dir": "${project_path}/../",
+            "path": "/usr/local/bin:$PATH"
+        },
+
+        {
+            "name": "Build App",
+            "cmd": ["npm", "run", "build"],
+            "working_dir": "${project_path}/app/",
             "path": "/usr/local/bin:$PATH"
         }
     ]
