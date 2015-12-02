@@ -20,19 +20,23 @@ nav a {
 .categories strike {
   color: #ccc; }
 
-.questions {
+.question {
   display: flex; }
-  .questions h4 {
+  .question h4 {
     text-align: right;
     width: 80px;
     padding: 0 8px; }
-  .questions p {
-    flex: 1;
-    font-family: "Droid Serif", serif; }
+  .question .content {
+    flex: 1; }
+    .question .content p {
+      font-family: "Droid Serif", serif; }
+  .question .similar a {
+    display: inline-block;
+    padding: 4px 8px; }
 
 .analysis section {
   display: flex; }
-.analysis .questions {
+.analysis .question {
   flex: 1; }
 .analysis .stats {
   width: 60%; }

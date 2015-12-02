@@ -49,8 +49,8 @@ def get_module(module):
     try:
         module = Module.getByCode(session, module)
 
-        if module.is_indexed():
-            popular = module.find_most_popular_questions().head(50).to_dict(orient="records")
+        if module.is_indexed() and sum(map(lambda p: len(p.questions), module.papers)) > 5:
+            popular = module.find_most_popular_questions()
             return flask.render_template('module.html', module=module, popular=popular)
         else:
             return flask.render_template('module.html', module=module)

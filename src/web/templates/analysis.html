@@ -12,7 +12,7 @@
 
     {% for item in analysis %}
     <section>
-        <div class="questions">
+        <div class="question">
             <h4 style="width: {{ (item.question.path | length) * 30 }}px">{% for i in item.question.pretty_path %}<span>{{i}}.</span>{% endfor %}</h4>
             <p>{{item.question.content}}</p>
         </div>

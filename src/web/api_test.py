@@ -1,4 +1,4 @@
-from . import api
+from project.src import api
 import flask
 
 # def test_get_paper():

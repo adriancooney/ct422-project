@@ -1,0 +1,18 @@
+{% macro question(question, similar=None, show_paper=False) %}
+<div class="question">
+    <h4 id="Q{{question.path | join('.')}}">{% for i in question.pretty_path %}<span>{{i}}.</span>{% endfor %}</h4>
+    <div class="content">
+        {% if show_paper -%}
+            <h3>{{question.paper.year_start}} {{question.paper.period}} {% block question_paper_title %}{% endblock %}</h3>
+        {% endif %}
+
+        <p>{{question.content}}</p>
+
+        {% if similar %}
+            <p class="similar">{% for qs in similar -%}
+                <a href="{{url_for('get_paper', module=qs.question.paper.module.code, year=qs.question.paper.year_start, period=qs.question.paper.period, format='html', sitting=qs.question.paper.sitting)}}?q={{qs.question.path | join('.')}}">{{qs.question.paper.year_start}} {{qs.question.paper.period}} {{ qs.question.pretty_path | join(".") }}</a>
+            {%- endfor %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}

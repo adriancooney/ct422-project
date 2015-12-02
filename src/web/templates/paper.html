@@ -5,11 +5,13 @@
 
 {% block body %}
 <div class="paper">
+    <div class="questions">
     {% for question in paper.questions %}
-        <div class="questions">
+        <div class="question">
             <h4 id="Q{{question.path | join('.')}}" style="width: {{ (question.path | length) * 30 }}px">{% for i in question.path %}<span>{{i}}.</span>{% endfor %}</h4>
             <p>{{question.content}}</p>
         </div>
     {% endfor %}
+    </div>
 </div>
 {% endblock %}

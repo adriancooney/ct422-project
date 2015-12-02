@@ -26,7 +26,7 @@ class Module(Base):
     __tablename__ = "module"
 
     id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True)
+    code = Column(String)
     name = Column(String)
     category_id = Column(Integer, ForeignKey('module_category.id'))
     papers = relationship("Paper", backref="module", order_by="Paper.year_start, Paper.period, Paper.indexed")
@@ -230,10 +230,31 @@ class Module(Base):
         if not self.vectorizer:
             self.vectorize()
 
-        questions = [self.find_similar_questions(q) for q in self.questions]
-        popularity = [df.sum().similarity for df in questions]
+        # Let's find the most popular question i.e. the question that is
+        # simililar to most other questions, then group them by their path.
+        # This is computing the gram matrix of the entire corpus D \cdot D.
+        popularity = cosine_similarity(self.tfidf_documents, self.tfidf_documents).sum(axis=0)
 
-        return DataFrame(zip(self.questions, popularity), columns=["question", "popularity"]).sort("popularity", ascending=False)
+        # Create our dataframe
+        popular = DataFrame(zip(self.questions, popularity), columns=["question", "popularity"])
+
+        questions = []
+
+        # Group by question path
+        for index, group in popular.groupby(lambda i: '.'.join(map(str, popular.iloc[i].question.path))):
+            # Sort them by popularity
+            group.sort_values("popularity", ascending=False)
+
+            head = group.head(1)
+
+            # Assume the first is the most popular
+            questions.append({
+                'question': head.question.values[0],
+                'popularity': head.popularity.values[0],
+                'similar': group.to_dict(orient="records")
+            })
+
+        return sorted(questions, key=lambda q: q["popularity"], reverse=True)
 
     def is_indexed(self):
         """Determine whether a module is indexed or not."""
