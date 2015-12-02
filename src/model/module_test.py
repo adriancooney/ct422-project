@@ -1,7 +1,7 @@
 import random
 import json
-from . import Module, Paper
-from ..config import Session
+from project.src.model import Module, Paper
+from project.src.config import Session
 
 session = Session()
 

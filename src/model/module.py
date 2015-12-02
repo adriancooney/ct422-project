@@ -17,8 +17,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import relationship, Session, reconstructor
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 
-from paper import NoLinkException, UnparseableException, PaperNotFound, Paper
-from base import Base
+from project.src.model.paper import NoLinkException, UnparseableException, PaperNotFound, Paper
+from project.src.model.base import Base
 
 class Module(Base):
     SIMILARITY_THRESHOLD = 0.2

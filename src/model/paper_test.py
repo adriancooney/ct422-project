@@ -3,7 +3,7 @@ import logging
 import os
 from pytest import raises
 from paper import Paper, UnparseableException
-from ..config import Session
+from project.src.config import Session
 
 logging.basicConfig(level=logging.DEBUG)
 

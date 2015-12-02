@@ -1,7 +1,7 @@
 import pycurl
 import slate
 from httplib import InvalidURL
-from base import Base
+from project.src.model.base import Base
 from os.path import join
 from sqlalchemy import Column, Integer, String, ForeignKey
 

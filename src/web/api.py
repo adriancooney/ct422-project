@@ -3,10 +3,10 @@ import logging
 import os.path
 import sqlalchemy
 from flask import Flask, abort, request
-from ..model import Module, Paper, Category
-from ..model.paper import UnparseableException, NoLinkException, InvalidPathException
-from ..model.paper_pdf import PaperNotFound
-from ..config import Session, APP_PORT, APP_HOST
+from project.src.model import Module, Paper, Category
+from project.src.model.paper import UnparseableException, NoLinkException, InvalidPathException
+from project.src.model.paper_pdf import PaperNotFound
+from project.src.config import Session, APP_PORT, APP_HOST
 from werkzeug.contrib.cache import SimpleCache
 from sqlalchemy.orm.exc import NoResultFound
 

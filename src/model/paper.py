@@ -9,10 +9,10 @@ from datetime import datetime
 from os.path import join
 from sklearn.feature_extraction.text import CountVectorizer
 
-from base import Base
-from question import Question
-from index import Index
-from paper_pdf import PaperPDF, PaperNotFound
+from project.src.model.base import Base
+from project.src.model.question import Question
+from project.src.model.index import Index
+from project.src.model.paper_pdf import PaperPDF, PaperNotFound
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 from sqlalchemy.orm.session import Session
