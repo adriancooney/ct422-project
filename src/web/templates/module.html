@@ -3,67 +3,21 @@
 
 {% block title %}Module {{ module.code }}{% endblock %}
 
-{% block page_title %}Module {{module.code}} - {{module.category.name}} ({{module.category.code}}) {% endblock %}
-
-{% block back_title %}{{module.category.name}}{% endblock %}
-{% block back_link %}{{ url_for('list_category_modules', category=module.category.code) }}{% endblock %}
-
 {% block body %}
 <div class="module">
-    <table>
-        <tr><th>Year</th><th>Period</th><th>PDF</th><th>Report</th><th>Questions</th><th>Status</th><th>Last Indexed</th>
-        {% for paper in module.papers | sort(attribute='year_start') %}
-        <tr class="{% if paper.indexed and paper.parseable -%}
-            available
-        {%- elif not paper.indexed and not paper.parseable -%}
-            not-indexed
-        {%- elif paper.indexed and not paper.link -%}
-            not-available
-        {%- elif paper.indexed and not paper.parseable -%}
-            not-parseable
-        {%- endif %}">
-            <td>{{paper.year_start}}</td>
-            <td>{{paper.period}}</td>
-            {% if paper.pdf or not paper.indexed %}
-                <td><a href="{{url_for('get_paper', module=module.code, year=paper.year_start, period=paper.period, format='pdf', sitting=paper.sitting)}}">PDF</a></td>
-            {% else %}
-                <td><strike>PDF</strike></td>
-            {% endif %}
-            {% if (paper.indexed and paper.parseable) or not paper.indexed -%}
-                <td><a href="/module/{{module.code}}/{{paper.year_start}}/{{paper.period}}/report">Report</a></td> 
-                <td><a href="{{paper.get_link(module)}}">Questions</a></td>
-                {% if paper.indexed -%}
-                    <td>Available</td>
-                {%- else -%}
-                    <td>Unknown</td>
-                {%- endif %}
-            {%- else -%}
-                <td><strike>Report</strike></td>
-                <td><strike>Questions</strike></td>
-                {% if not paper.link -%}
-                    <td>Paper not available online.</td>
-                {%- elif not paper.parseable -%}
-                    <td>Paper is unparseable.</td>
-                {%- endif %}
-            {%- endif %}
-
-            {% if paper.indexed -%}
-            <td>{{paper.indexed_at.strftime('%m-%d at %m:%S')}}</td>
-            {%- else -%}
-            <td>Not indexed</td>
-            {%- endif %}
-
-            <td><a href="/module/{{module.code}}/?index={{paper.id}}">Index</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    {% if popular %}
-        <h3>Popular questions in {{module.code}}</h3>
-
-        {% for pop in popular %}
-            {{ components.question(pop.question, pop.similar) }}
-        {% endfor %}
-    {% endif %}
+    <header>
+        <h2><strong><a href="#">NUIG</a></strong>/<a href="#">CT422</a></h2>
+        <h3>Modern Information Management</h3>
+    </header>
+    <section class="papers">
+        <table>
+            <tr><th>Paper</th>{% for year in range(2005, 2015) %}<th>{{year}}</th>{% endfor %}</tr>
+            {% for period in ["Winter", "Summer", "Autumn"] %}    
+                <tr><td>{{period}}</td>{% for i in range(10) -%}
+                    <td><a class="dot"></a></td>
+                {%- endfor %}</tr>
+            {% endfor %}
+        </table>
+    </section>
 </div>
 {% endblock %}

@@ -1,131 +1,107 @@
 * { box-sizing: border-box }
 
+$font-reading: "Kefa";
+$font-display: "Avenir Next";
+
+$theme-light-grey: #E2E2E2;
+$theme-grey: #777;
+$theme-blue: #418EE5;
+
 body {
-    font-family: "Source Sans Pro", sans-serif;
+    font-family: $font-reading, sans-serif;
+    background: #FAFAFA;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
 }
 
 a {
-    $color: darken(#006699, 0%);
-    color: $color;
+    color: $theme-blue;
     text-decoration: none;
-
-    &:hover {
-        border-bottom: 1px solid $color;
-    }
 }
 
-table {
-    td {
-        padding: 6px;
-    }
+section {
+    background: #fff;
+    padding: 12px;
 }
 
-nav {
-    a {
-        display: inline-block;
-        margin: 12px;
-    }
-}
-
-.categories {
-    strike {
-        color: #ccc;
-    }
-}
-
-.question {
+.header {
     display: flex;
-
-    h4 {
-        text-align: right;
-        width: 80px;
-        padding: 0 8px;
-    }
-
-    .content {
-        flex: 1;
-
-        p {
-            font-family: "Droid Serif", serif;
-        }
-    }
-
-    .similar a { 
-        display: inline-block; 
-        padding: 4px 8px; 
-    }
+    justify-content: space-between;
 }
 
-.analysis {
-    section {
-        display: flex;
-    }
-
-    .question {
-        flex: 1;
-    }
-
-    .stats {
-        width: 60%;
-
-        table {
-            width: 100%;
-
-            tr td {
-                padding: 4px;
-                vertical-align: top;
-                text-align: center;
-            }
-
-            tr:first-child td {
-                font-weight: bold;
-                font-size: 120%;
-            }
-
-            tr td:first-child {
-                width: 80px;
-                text-align: right;
-                font-weight: normal;
-                font-size: 100%;
-            }      
-
-            td {
-                p {
-                    font-size: 12px;
-                    color: black;
-                    padding: 4px;
-                    font-size: 110%;
-                    margin: 0;
-                }
-
-                i {
-                    font-size: 12px;
-                }
-
-                .period-summer { background-color: gold; }
-                .period-winter { background-color: LightSkyBlue; }
-                .period-autumn { background-color: Sienna; }
-                .period-spring { background-color: MediumSeaGreen; }
-            }
-        }
-    }
-}
-
-.modules {
-    a {
-        display: inline-block;
-        padding: 8px;
-
-        &.indexed {
-            background: #B0E57C;
-            border-radius: 6px;
-        }
-    }
+.container {
+    width: 940px;
+    margin: 0 auto;
 }
 
 .module {
-    .not-indexed { background: #B4D8E7; }
-    .not-available { background: #FFF0AA; }
-    .not-parseable { background: #FFAEAE; }
-    .available { background: #B0E57C; }
+    header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 200%;
+        margin: 12px 0;
+
+        h2 {
+            font-family: $font-display;
+            color: $theme-light-grey;
+            font-weight: 400;
+        }
+
+        h3 {
+            flex: 1;
+            text-align: right;
+            padding-top: 10px;
+            font-size: 124%;
+        }
+    }
+}
+
+.papers {
+    table {
+        width: 100%;
+
+        tr {
+            th, td { 
+                padding: 4px 0; 
+            }
+
+            th {
+                font-family: $font-display;
+                font-weight: bold;
+                color: $theme-blue;
+                font-size: 130%;
+            }
+
+            th:first-child {
+                text-transform: uppercase;
+                text-align: right;
+                padding-right: 8px;
+            }
+
+            td {
+                text-align: center;
+            }
+
+            td:first-child {
+                text-align: right;
+                font-family: $font-display;
+                font-weight: 400;
+                color: $theme-grey;
+                padding-right: 8px;
+            }
+        }
+    }
+
+    .dot {
+        $radius: 8px;
+
+        display: inline-block;
+        width: $radius * 2;
+        height: $radius * 2;
+        background-color: $theme-light-grey;
+        border-radius: $radius * 2;
+        cursor: pointer;
+    }
 }

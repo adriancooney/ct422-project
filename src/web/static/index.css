@@ -2,89 +2,70 @@
   box-sizing: border-box; }
 
 body {
-  font-family: "Source Sans Pro", sans-serif; }
+  font-family: "Kefa", sans-serif;
+  background: #FAFAFA; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0; }
 
 a {
-  color: #006699;
+  color: #418EE5;
   text-decoration: none; }
-  a:hover {
-    border-bottom: 1px solid #006699; }
 
-table td {
-  padding: 6px; }
+section {
+  background: #fff;
+  padding: 12px; }
 
-nav a {
-  display: inline-block;
-  margin: 12px; }
+.header {
+  display: flex;
+  justify-content: space-between; }
 
-.categories strike {
-  color: #ccc; }
+.container {
+  width: 940px;
+  margin: 0 auto; }
 
-.question {
-  display: flex; }
-  .question h4 {
+.module header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 200%;
+  margin: 12px 0; }
+  .module header h2 {
+    font-family: "Avenir Next";
+    color: #E2E2E2;
+    font-weight: 400; }
+  .module header h3 {
+    flex: 1;
     text-align: right;
-    width: 80px;
-    padding: 0 8px; }
-  .question .content {
-    flex: 1; }
-    .question .content p {
-      font-family: "Droid Serif", serif; }
-  .question .similar a {
-    display: inline-block;
-    padding: 4px 8px; }
+    padding-top: 10px;
+    font-size: 124%; }
 
-.analysis section {
-  display: flex; }
-.analysis .question {
-  flex: 1; }
-.analysis .stats {
-  width: 60%; }
-  .analysis .stats table {
-    width: 100%; }
-    .analysis .stats table tr td {
-      padding: 4px;
-      vertical-align: top;
-      text-align: center; }
-    .analysis .stats table tr:first-child td {
-      font-weight: bold;
-      font-size: 120%; }
-    .analysis .stats table tr td:first-child {
-      width: 80px;
-      text-align: right;
-      font-weight: normal;
-      font-size: 100%; }
-    .analysis .stats table td p {
-      font-size: 12px;
-      color: black;
-      padding: 4px;
-      font-size: 110%;
-      margin: 0; }
-    .analysis .stats table td i {
-      font-size: 12px; }
-    .analysis .stats table td .period-summer {
-      background-color: gold; }
-    .analysis .stats table td .period-winter {
-      background-color: LightSkyBlue; }
-    .analysis .stats table td .period-autumn {
-      background-color: Sienna; }
-    .analysis .stats table td .period-spring {
-      background-color: MediumSeaGreen; }
-
-.modules a {
+.papers table {
+  width: 100%; }
+  .papers table tr th, .papers table tr td {
+    padding: 4px 0; }
+  .papers table tr th {
+    font-family: "Avenir Next";
+    font-weight: bold;
+    color: #418EE5;
+    font-size: 130%; }
+  .papers table tr th:first-child {
+    text-transform: uppercase;
+    text-align: right;
+    padding-right: 8px; }
+  .papers table tr td {
+    text-align: center; }
+  .papers table tr td:first-child {
+    text-align: right;
+    font-family: "Avenir Next";
+    font-weight: 400;
+    color: #777;
+    padding-right: 8px; }
+.papers .dot {
   display: inline-block;
-  padding: 8px; }
-  .modules a.indexed {
-    background: #B0E57C;
-    border-radius: 6px; }
-
-.module .not-indexed {
-  background: #B4D8E7; }
-.module .not-available {
-  background: #FFF0AA; }
-.module .not-parseable {
-  background: #FFAEAE; }
-.module .available {
-  background: #B0E57C; }
+  width: 16px;
+  height: 16px;
+  background-color: #E2E2E2;
+  border-radius: 16px;
+  cursor: pointer; }
 
 /*# sourceMappingURL=index.css.map */

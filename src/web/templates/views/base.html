@@ -5,12 +5,17 @@
     <link rel="stylesheet" type="text/css" href="/static/index.css">
 </head>
 <body>
-<header>
-    <nav><p>{% if self.back_link() -%}
-        <a href="{% block back_link %}{% endblock %}">&larr; Back to {% block back_title %}{% endblock %}</a>
-    {% endif %}<a href="/">Modules</a></p>
-    <h1>{% block page_title %}{% endblock %}</h1>
-</header>
-{% block body %}{% endblock %}
+<div class="container">
+    <header class="header">
+        <h1>examist</h1>
+        <nav>
+            <ul>
+                <li><a href="#">institutions</a></li>
+                <li><a href="#">about</a></li>
+            </ul>
+        </nav>
+    </header>
+    {% block body %}{% endblock %}
+</div>
 </body>
 </html>
