@@ -6,15 +6,22 @@
 {% block body %}
 <div class="module">
     <header>
-        <h2><strong><a href="#">NUIG</a></strong>/<a href="#">CT422</a></h2>
-        <h3>Modern Information Management</h3>
+        <h2><strong><a href="#">{{module.category.institution.code}}</a></strong>/<a href="{{ url_for('list_category_modules', category=module.category.code) }}">{{module.category.code}}</a>/<a href="{{ url_for('get_module', module=module.code) }}">{{module.code | replace(module.category.code, "") }}</a></h2>
+        <h3>{{module.name}}</h3>
     </header>
     <section class="papers">
         <table>
             <tr><th>Paper</th>{% for year in range(2005, 2015) %}<th>{{year}}</th>{% endfor %}</tr>
-            {% for period in ["Winter", "Summer", "Autumn"] %}    
-                <tr><td>{{period}}</td>{% for i in range(10) -%}
-                    <td><a class="dot"></a></td>
+            {% for period, group in papers | dictsort | reverse %}    
+                <tr><td>{{period}}</td>{% for year in range(2005, 2015) -%}
+                    {% set paper = group[year] %}
+
+                    <td>{% if not paper -%}
+                        <span class="dot"></span>
+                    {%- else -%}
+                        {% set status = paper.get_status() %}
+                        <a data-status="{{status | capitalize }}" class="dot {{ status }}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format='html')}}"></a>
+                    {%- endif %}</td>
                 {%- endfor %}</tr>
             {% endfor %}
         </table>

@@ -3,6 +3,7 @@ import logging
 import os.path
 import sqlalchemy
 from flask import Flask, abort, request
+from itertools import groupby
 from project.src.model import Module, Paper, Category
 from project.src.model.paper import UnparseableException, NoLinkException, InvalidPathException
 from project.src.model.paper_pdf import PaperNotFound
@@ -49,11 +50,22 @@ def get_module(module):
     try:
         module = Module.getByCode(session, module)
 
-        if module.is_indexed() and sum(map(lambda p: len(p.questions), module.papers)) > 5:
-            popular = module.find_most_popular_questions()
-            return flask.render_template('module.html', module=module, popular=popular)
-        else:
-            return flask.render_template('module.html', module=module)
+        # Group by period
+        get_period = lambda p: p.period
+        get_year = lambda p: p.year_start
+        papers = [paper for paper in sorted(module.papers, key=get_period)] # Sort by period
+        papers = { period: [p for p in group] for period, group in groupby(papers, key=get_period) } # Group by period
+
+        # Now make a dict of papers by year
+        for period, group in papers.iteritems():
+            papers[period] = { paper.year_start: paper for paper in sorted(group, key=get_year) }
+
+
+        # if module.is_indexed() and sum(map(lambda p: len(p.questions), module.papers)) > 5:
+        #     popular = module.find_most_popular_questions()
+        #     return flask.render_template('module.html', module=module, popular=popular)
+        # else:
+        return flask.render_template('module.html', module=module, papers=papers)
 
     except NoResultFound:
         return fail(404, "Module not found.")
@@ -136,7 +148,8 @@ def get_paper(module, year, period, sitting, format):
                 return fail(404, "PDF not found on NUIG Exam papers for %r." % paper)
 
         if format == 'pdf':
-            return flask.send_from_directory(os.path.dirname(paper.pdf.path), os.path.basename(paper.pdf.path))
+            # No downloading here.
+            return flask.redirect(paper.link, code=302)
 
         # Direct path to question
         path = request.args.get("q")

@@ -7,6 +7,11 @@ $theme-light-grey: #E2E2E2;
 $theme-grey: #777;
 $theme-blue: #418EE5;
 
+$theme-unindexed: #B4D8E7;
+$theme-unavailable: #FFF0AA;
+$theme-unparseable: #FFAEAE;
+$theme-available: #B0E57C;
+
 body {
     font-family: $font-reading, sans-serif;
     background: #FAFAFA;
@@ -19,6 +24,10 @@ h1, h2, h3, h4, h5, h6 {
 a {
     color: $theme-blue;
     text-decoration: none;
+
+    &:hover {
+        border-bottom: 1px solid $theme-blue;
+    }
 }
 
 section {
@@ -29,6 +38,19 @@ section {
 .header {
     display: flex;
     justify-content: space-between;
+
+    h1 {
+        margin: 12px;
+    }
+
+    nav {
+        li {
+            display: inline-block;
+            margin: 0 12px;
+            font-size: 140%;
+            font-family: $font-display;
+        }
+    }
 }
 
 .container {
@@ -40,7 +62,7 @@ section {
     header {
         display: flex;
         justify-content: space-between;
-        font-size: 200%;
+        font-size: 180%;
         margin: 12px 0;
 
         h2 {
@@ -54,6 +76,10 @@ section {
             text-align: right;
             padding-top: 10px;
             font-size: 124%;
+        }
+
+        a:hover {
+            border-bottom: none;
         }
     }
 }
@@ -94,14 +120,54 @@ section {
         }
     }
 
+    $radius: 8px;
+
     .dot {
-        $radius: 8px;
 
         display: inline-block;
         width: $radius * 2;
         height: $radius * 2;
         background-color: $theme-light-grey;
         border-radius: $radius * 2;
-        cursor: pointer;
+    }
+
+    a.dot {
+        &:hover {
+            transform: scale(1.5);
+            border: none;
+
+            &:after {
+                position: absolute;
+                width: $radius*2;
+                height: $radius*2;
+                background: blue;
+            }
+
+            // &:before {
+            //     content: attr(data-status);
+            //     font-family: $font-display;
+            //     font-size: 30%;
+            //     background: $theme-grey;
+            //     height: $radius * 2 - 2px;
+            //     color: $theme-grey;
+            //     position: absolute;
+            //     padding-top: 2px;
+            //     padding-right: $radius;
+            //     border-top-right-radius: $radius;
+            //     border-bottom-right-radius: $radius;
+            //     color: rgba(0,0,0,0.5);
+            // }
+        }
+
+        &.available { background-color: $theme-available; }
+        &.unavailable { background-color: $theme-unavailable; }
+        &.unparseable { background-color: $theme-unparseable; }
+        &.unindexed { background-color: $theme-unindexed; }
+
+        &.available:before { background-color: $theme-available; }
+        &.unavailable:before { background-color: $theme-unavailable; }
+        &.unparseable:before { background-color: $theme-unparseable; }
+        &.unindexed:before { background-color: $theme-unindexed; }
+
     }
 }

@@ -11,6 +11,8 @@ h1, h2, h3, h4, h5, h6 {
 a {
   color: #418EE5;
   text-decoration: none; }
+  a:hover {
+    border-bottom: 1px solid #418EE5; }
 
 section {
   background: #fff;
@@ -19,6 +21,13 @@ section {
 .header {
   display: flex;
   justify-content: space-between; }
+  .header h1 {
+    margin: 12px; }
+  .header nav li {
+    display: inline-block;
+    margin: 0 12px;
+    font-size: 140%;
+    font-family: "Avenir Next"; }
 
 .container {
   width: 940px;
@@ -27,7 +36,7 @@ section {
 .module header {
   display: flex;
   justify-content: space-between;
-  font-size: 200%;
+  font-size: 180%;
   margin: 12px 0; }
   .module header h2 {
     font-family: "Avenir Next";
@@ -38,6 +47,8 @@ section {
     text-align: right;
     padding-top: 10px;
     font-size: 124%; }
+  .module header a:hover {
+    border-bottom: none; }
 
 .papers table {
   width: 100%; }
@@ -65,7 +76,30 @@ section {
   width: 16px;
   height: 16px;
   background-color: #E2E2E2;
-  border-radius: 16px;
-  cursor: pointer; }
+  border-radius: 16px; }
+.papers a.dot:hover {
+  transform: scale(1.5);
+  border: none; }
+  .papers a.dot:hover:after {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: blue; }
+.papers a.dot.available {
+  background-color: #B0E57C; }
+.papers a.dot.unavailable {
+  background-color: #FFF0AA; }
+.papers a.dot.unparseable {
+  background-color: #FFAEAE; }
+.papers a.dot.unindexed {
+  background-color: #B4D8E7; }
+.papers a.dot.available:before {
+  background-color: #B0E57C; }
+.papers a.dot.unavailable:before {
+  background-color: #FFF0AA; }
+.papers a.dot.unparseable:before {
+  background-color: #FFAEAE; }
+.papers a.dot.unindexed:before {
+  background-color: #B4D8E7; }
 
 /*# sourceMappingURL=index.css.map */
