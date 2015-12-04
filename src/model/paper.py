@@ -181,6 +181,16 @@ class Paper(Base):
         return "/paper/{}/{}/{}{}".format(
             module.code, self.year_start, self.period.lower(), "." + format if format else "")
 
+    def get_status(self):
+        if not self.link:
+            return "unavailable"
+        elif not self.indexed:
+            return "unindexed"
+        elif self.indexed and not self.parseable:
+            return "unparseable"
+        elif self.indexed and self.parseable:
+            return "available"
+
     ######################################
     # Paper parser.
     ######################################
