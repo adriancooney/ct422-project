@@ -7,7 +7,7 @@ from itertools import groupby
 from project.src.model import Module, Paper, Category, Institution
 from project.src.model.paper import UnparseableException, NoLinkException, InvalidPathException
 from project.src.model.paper_pdf import PaperNotFound
-from project.src.config import Session, APP_PORT, APP_HOST
+from project.src.config import Session, APP_PORT, APP_HOST, APP_DEBUG
 from werkzeug.contrib.cache import SimpleCache
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -188,4 +188,4 @@ def list_categories(institution):
     return flask.render_template('module_categories.html', categories=categories)
 
 if __name__ == '__main__':
-    app.run(port=APP_PORT, host=APP_HOST, debug=True)
+    app.run(port=APP_PORT, host=APP_HOST, debug=APP_DEBUG)
