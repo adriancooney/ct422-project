@@ -1,0 +1,25 @@
+{% extends 'views/base.html' %}
+
+{% block title %}All Modules{% endblock %}
+
+{% block page_title %}Categories{% endblock %}
+
+{% block body %}
+<div class="modules">
+    <header>
+        <h2><a href="{{ url_for('get_institution', institution=institution.code) }}">{{institution.code}}</a></h2>
+        <h3>Module Categories</h3>
+    </header>
+    <div class="list">
+        <table>
+            {% for category in institution.categories | sort(attribute='code') %}
+                {% if (category.modules | length) > 0 %}
+                    <tr><td><a href="{{url_for('list_category_modules', category=category.code)}}">{{category.code}}</a></td><td><a href="{{url_for('list_category_modules', category=category.code)}}">{{category.name}}</a></td></tr>
+                {% else %}
+                    <tr title="No modules in this category."><td><strike>{{category.code}}</strike></td><td><strike>{{category.name}}</strike></td></tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

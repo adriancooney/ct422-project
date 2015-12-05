@@ -6,10 +6,11 @@
     {% if _question.content and _question.content | trim %}
     <div class="content">
         <p>{{_question.content | replace("\uFFFD", "")}}</p>
-        {% if _question.similar %}
+        {% set similar = _question.get_similar() %}
+        {% if (similar | length) > 1%}
             <div class="similar">
-            {%- for __question in (_question.get_similar() | sort(reverse=True, attribute='similarity')) -%}
-                {% if loop.index < 4 %}
+            {%- for __question in (similar | sort(reverse=True, attribute='similarity')) -%}
+                {% if __question.question.id != _question.id and loop.index < 5 %}
                     <h4 class="index index-similar"><a href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period)}}#Q{{__question.question.path | join(".")}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a></h4>
                 {% endif %}
             {%- endfor -%}
@@ -21,7 +22,7 @@
 
     {% if _question.children | length > 0 %}
     <div class="children">
-        {% for __question in _question.children %}
+        {% for __question in _question.children | sort(attribute='path') %}
             {{ question(__question, first=loop.first) }}
         {% endfor %}
     </div>

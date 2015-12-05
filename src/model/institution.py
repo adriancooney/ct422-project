@@ -9,3 +9,7 @@ class Institution(Base):
     name = Column(String)
     code = Column(String, unique=True)
     categories = relationship("Category", backref="institution")
+
+    @staticmethod
+    def getByCode(session, code):
+        return session.query(Institution).filter(Institution.code == code).one()

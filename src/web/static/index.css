@@ -10,9 +10,13 @@ h1, h2, h3, h4, h5, h6, p {
 
 a {
   color: #418EE5;
-  text-decoration: none; }
+  text-decoration: none;
+  outline: none; }
   a:hover {
     border-bottom: 1px solid #418EE5; }
+
+strike {
+  color: rgba(0, 0, 0, 0.4); }
 
 section {
   background: #fff;
@@ -23,6 +27,9 @@ section {
   justify-content: space-between; }
   .header h1 {
     margin: 12px; }
+    .header h1 a {
+      color: inherit;
+      border: none; }
   .header nav li {
     display: inline-block;
     margin: 0 12px;
@@ -57,6 +64,9 @@ section {
   column-count: 2;
   -webkit-column-count: 2;
   -moz-column-count: 2; }
+.modules .indexed {
+  background-color: #B0E57C;
+  border-radius: 6px; }
 
 .papers table {
   width: 100%; }
@@ -174,6 +184,10 @@ a.dot.current {
       color: inherit; }
       .question header a:hover {
         border: none; }
+  .question .content {
+    padding: 6px 12px 12px 12px; }
+    .question .content p {
+      margin: 0; }
   .question .similar {
     margin-top: 12px; }
     .question .similar .index {
@@ -193,10 +207,6 @@ a.dot.current {
     border-left: 4px solid #E5E5E5; }
     .question .question header {
       margin-top: 0; }
-    .question .question .content {
-      padding: 6px 12px 12px 12px; }
-      .question .question .content p {
-        margin: 0; }
   .question.first > header:before {
     width: 0;
     height: 0;
@@ -218,6 +228,9 @@ a.dot.current {
     border-color: transparent transparent transparent #f9f9f9;
     border-width: 18px 0 0 18px; }
 
+.error-page .error {
+  margin-top: 240px; }
+
 .error {
   text-align: center;
   width: 60%;
@@ -235,5 +248,18 @@ a.dot.current {
     background-color: #FFAEAE; }
   .error.unparseable {
     background-color: #ffe777; }
+
+article {
+  padding: 12px; }
+  article .center {
+    text-align: center; }
+  article .faded {
+    color: rgba(0, 0, 0, 0.3); }
+  article h1 {
+    font-size: 200%;
+    margin: 18px; }
+  article h2 {
+    font-size: 140%;
+    margin: 12px 0; }
 
 /*# sourceMappingURL=index.css.map */

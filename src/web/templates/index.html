@@ -1,0 +1,19 @@
+{% extends 'views/base.html' %}
+
+{% block title %}Examist{% endblock %}
+
+{% block body %}
+<article class="home">
+    <div class="center">
+        <h1>Welcome to examist.</h1>
+    </div>
+    <h2>Available Modules</h2>
+    <div class="modules">
+        <table>
+            {% for module in modules | sort(attribute='code') %}
+                <tr><td><a href="{{url_for('get_module', module=module.code)}}">{{module.code}}</a></td><td><a href="/module/{{module.code}}/">{{module.name}}</a></td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</article>
+{% endblock %}

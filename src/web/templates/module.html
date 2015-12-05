@@ -1,12 +1,12 @@
 {% import 'views/components.html' as components %}
 {% extends 'views/base.html' %}
 
-{% block title %}Module {{ module.code }}{% endblock %}
+{% block title %}{{ module.code }} - {{ module.name }}{% endblock %}
 
 {% block body %}
 <div class="module">
     <header>
-        <h2><strong><a href="#">{{module.category.institution.code}}</a></strong>/<a href="{{ url_for('list_category_modules', category=module.category.code) }}">{{module.category.code}}</a>/<a href="{{ url_for('get_module', module=module.code) }}">{{module.code | replace(module.category.code, "") }}</a></h2>
+        <h2><strong><a href="{{url_for('get_institution', institution=module.category.institution.code)}}">{{module.category.institution.code}}</a></strong>/<a href="{{ url_for('list_category_modules', category=module.category.code) }}">{{module.category.code}}</a>/<a href="{{ url_for('get_module', module=module.code) }}">{{module.code | replace(module.category.code, "") }}</a></h2>
         <h3>{{module.name}}</h3>
     </header>
     <section class="papers">
@@ -22,8 +22,8 @@
                     {%- else -%}
                         {% set status = _paper.get_status() %}
                         {% set current = paper and _paper is sameas paper %}
-                        {% if current %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
-                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format=format)}}"></a>
+                        {% if current and status != 'unavailable' %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
+                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format=format)}}" {% if format == 'pdf' %}target="_blank" title="View PDF"{% endif %}></a>
                     {%- endif %}</td>
                 {%- endfor %}</tr>
             {% endfor %}
@@ -48,6 +48,12 @@
                 {% endfor %}
             </div>
         {% endif %}
+    {% else %}
+        <article>
+            <div class="center faded">
+                <p>Click a paper above to view the questions.</p>
+            </div>
+        </article>
     {% endif %}
 </div>
 {% endblock %}

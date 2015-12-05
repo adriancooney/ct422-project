@@ -9,15 +9,17 @@ import scipy as sp
 from os import path
 from itertools import groupby
 from collections import OrderedDict
+from datetime import datetime
 from pandas import DataFrame, concat
 from nltk.stem.porter import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import relationship, Session, reconstructor
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
+from sqlalchemy.sql import func
 
-from project.src.model.question import Similar
+from project.src.model.question import Question, Similar
 from project.src.model.paper import NoLinkException, UnparseableException, PaperNotFound, Paper
 from project.src.model.base import Base
 
@@ -31,6 +33,8 @@ class Module(Base):
     name = Column(String)
     category_id = Column(Integer, ForeignKey('module_category.id'))
     papers = relationship("Paper", backref="module", order_by="Paper.year_start, Paper.period, Paper.indexed")
+    indexed = Column(Boolean)
+    indexed_at = Column(DateTime)
 
     @reconstructor
     def init_load(self):
@@ -56,7 +60,8 @@ class Module(Base):
             except PaperNotFound:
                 logging.warning("Paper %r not found." % paper)
 
-        self.is_indexed = True
+        self.indexed = True
+        self.indexed_at = datetime.now()
 
         session = Session.object_session(self)
 
@@ -248,39 +253,18 @@ class Module(Base):
         This loops through all the questions, find's the similar questions
         and ranks them by sum(similarity)
         """
-        # Compute the tf-idf if not already completed
-        if not self.vectorizer:
-            self.vectorize()
+        session = Session.object_session(self)
 
-        # Let's find the most popular question i.e. the question that is
-        # simililar to most other questions, then group them by their path.
-        # This is computing the gram matrix of the entire corpus D \cdot D.
-        popularity = cosine_similarity(self.tfidf_documents, self.tfidf_documents).sum(axis=0)
+        questions = session.query(Similar.question_id, func.sum(Similar.similarity).label("cum_similarity")).filter(
+            (Similar.similarity > Module.SIMILARITY_THRESHOLD) & \
+            (Similar.question_id == Similar.similar_question_id)
+        ).group_by(Similar.question_id).join(Question, Similar.question_id == Question.id).all()
 
-        # Create our dataframe
-        popular = DataFrame(zip(self.questions, popularity), columns=["question", "popularity"])
-
-        questions = []
-
-        # Group by question path
-        for index, group in popular.groupby(lambda i: '.'.join(map(str, popular.iloc[i].question.path))):
-            # Sort them by popularity
-            group.sort_values("popularity", ascending=False)
-
-            head = group.head(1)
-
-            # Assume the first is the most popular
-            questions.append({
-                'question': head.question.values[0],
-                'popularity': head.popularity.values[0],
-                'similar': group.to_dict(orient="records")
-            })
-
-        return sorted(questions, key=lambda q: q["popularity"], reverse=True)
+        print questions
 
     def is_indexed(self):
         """Determine whether a module is indexed or not."""
-        return all(map(lambda p: p.indexed, self.papers))
+        return self.indexed or all(map(lambda p: p.indexed, self.papers))
 
     #########################################
     # Query methods
@@ -289,5 +273,5 @@ class Module(Base):
     @staticmethod
     def getByCode(session, code):
         return session.query(Module).filter(
-            Module.code.like(code + '%')
+            Module.code.like(code.upper() + '%')
         ).one()

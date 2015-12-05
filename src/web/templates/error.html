@@ -5,5 +5,10 @@
 {% block page_title %}Error {{code}}{% endblock %}
 
 {% block body %}
-<h3>{{message}}</h3>
+<div class="error-page">
+    <div class="error unavailable">
+        <h3>{{code}}</h3>
+        <p>{{message}}</p>
+    </div>
+</div>
 {% endblock %}

@@ -2,21 +2,20 @@
 
 {% block title %}All Modules{% endblock %}
 
-{% block page_title %}{{category.name}} Modules{% endblock %}
-
-{% block back_title %}Module Categories{% endblock %}
-{% block back_link %}{{ url_for('list_categories') }}{% endblock %}
-
 {% block body %}
 <div class="modules">
     <header>
-        <h2><a href="{{ url_for('list_categories', institution=category.institution.code) }}">{{category.institution.code}}</a>/<a href="{{url_for('list_category_modules', category=category.code) }}">{{category.code}}</a></h2>
+        <h2><a href="{{ url_for('get_institution', institution=category.institution.code) }}">{{category.institution.code}}</a>/<a href="{{url_for('list_category_modules', category=category.code) }}">{{category.code}}</a></h2>
         <h3>{{category.name}}</h3>
     </header>
     <div class="list">
         <table>
             {% for module in category.modules | sort(attribute='code') %}
-                <tr><td {% if module.is_indexed() %}class="indexed"{% endif %}><a href="/module/{{module.code}}/">{{module.code}}</a></td><td><a href="/module/{{module.code}}/">{{module.name}}</a></td></tr>
+                {% if module.is_indexed() %}
+                    <tr><td><a href="/module/{{module.code}}/">{{module.code}}</a></td><td><a href="/module/{{module.code}}/">{{module.name}}</a></td></tr>
+                {% else %}
+                    <tr title="Not indexed yet."><td><strike>{{module.code}}</strike></td><td><strike>{{module.name}}</strike></td></tr>
+                {% endif %}
             {% endfor %}
         </table>
     </div>

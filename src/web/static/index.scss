@@ -33,6 +33,12 @@ a {
     &:hover {
         border-bottom: 1px solid $theme-blue;
     }
+
+    outline: none;
+}
+
+strike {
+    color: rgba(0,0,0,0.4);
 }
 
 section {
@@ -46,6 +52,11 @@ section {
 
     h1 {
         margin: 12px;
+
+        a {
+            color: inherit;
+            border: none;
+        }
     }
 
     nav {
@@ -100,6 +111,11 @@ section {
         column-count: 2;
         -webkit-column-count: 2;
         -moz-column-count: 2;
+    }
+
+    .indexed {
+        background-color: $theme-available;
+        border-radius: 6px;
     }
 }
 
@@ -260,6 +276,15 @@ a.dot {
         }
     }
 
+
+    .content {
+        padding: 6px 12px 12px 12px;
+
+        p {
+            margin: 0;
+        }
+    }
+
     .similar {
         margin-top: 12px;
 
@@ -286,14 +311,6 @@ a.dot {
 
         header {
             margin-top: 0;
-        }
-
-        .content {
-            padding: 6px 12px 12px 12px;
-
-            p {
-                margin: 0;
-            }
         }
     }
 
@@ -326,6 +343,13 @@ a.dot {
         }
     }
 }
+
+.error-page {
+    .error {
+        margin-top: 240px;
+    }
+}
+
 .error {
     text-align: center;
     width: 60%;
@@ -348,3 +372,24 @@ a.dot {
     &.unparseable { background-color: $theme-unparseable; }
 }
 
+article {
+    padding: 12px;
+
+    .center {
+        text-align: center;
+    }
+
+    .faded {
+        color: rgba(0,0,0,0.3);
+    }
+
+    h1 {
+        font-size: 200%;
+        margin: 18px;
+    }
+
+    h2 {
+        font-size: 140%;
+        margin: 12px 0;
+    }
+}

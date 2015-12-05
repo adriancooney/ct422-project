@@ -29,26 +29,14 @@ def fail(code, message, format='html'):
 
 @app.route('/module/<module>/')
 def get_module(module):
-    module = module.upper()
-
-    index = request.args.get("index")
-
-    if index:
-        id = int(index)
-
-        try:
-            paper = Paper.getById(session, id)
-
-            try:
-                print "Indexing paper %r" % paper
-                paper.index()
-            except:
-                pass
-        except NoResultFound:
-            return fail(404, "Paper %d not found" % id)
-
     try:
+        module = module.upper()
         module = Module.getByCode(session, module)
+
+        # Fail if the module is not indexed
+        if not module.is_indexed():
+            return fail(403, "Module {} has not been indexed yet.".format(module.code))
+
         papers = module.get_grouped_papers()
 
         # if module.is_indexed() and sum(map(lambda p: len(p.questions), module.papers)) > 5:
@@ -67,6 +55,7 @@ def get_module(module):
 def get_module_report(module, year, period):
     try:
         module = Module.getByCode(session, module)
+
         period = period.lower()
 
         try:
@@ -108,6 +97,10 @@ def get_paper(module, year, period, sitting, format):
             return fail(401, "Unknown format %s" % format)
 
         module = Module.getByCode(session, module)
+
+        # Fail if the module is not indexed
+        if not module.is_indexed():
+            return fail(403, "Module {} has not been indexed yet.".format(module.code))
 
         # Get the paper
         selection = Paper.module_id == module.id
@@ -179,13 +172,15 @@ def list_category_modules(category):
         return fail(404, "Category not found.")
 
 @app.route("/<institution>/")
-def list_categories(institution):
-    categories = session.query(Category).filter(
-        (Category.institution_id == Institution.id) & \
-        (Institution.code == institution)
-    ).all()
+def get_institution(institution):
+    institution = Institution.getByCode(session, institution)
 
-    return flask.render_template('module_categories.html', categories=categories)
+    return flask.render_template('institution.html', institution=institution)
+
+@app.route("/")
+def get_index():
+    modules = session.query(Module).filter(Module.indexed == True).all()
+    return flask.render_template('index.html', modules=modules)
 
 if __name__ == '__main__':
     app.run(port=APP_PORT, host=APP_HOST, debug=APP_DEBUG)
