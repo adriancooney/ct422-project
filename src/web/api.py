@@ -172,7 +172,7 @@ def list_category_modules(category):
     except NoResultFound:
         return fail(404, "Category not found.")
 
-@app.route("/<institution>/")
+@app.route("/institution/<institution>/")
 def get_institution(institution):
     institution = Institution.getByCode(session, institution)
 
