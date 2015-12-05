@@ -228,6 +228,9 @@ a.dot.current {
     border-color: transparent transparent transparent #f9f9f9;
     border-width: 18px 0 0 18px; }
 
+:target {
+  background-color: #ebf3fc; }
+
 .error-page .error {
   margin-top: 240px; }
 

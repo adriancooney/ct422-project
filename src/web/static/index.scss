@@ -344,6 +344,10 @@ a.dot {
     }
 }
 
+:target {
+    background-color: lighten($theme-blue, 38%);
+}
+
 .error-page {
     .error {
         margin-top: 240px;

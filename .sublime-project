@@ -27,6 +27,13 @@
             "cmd": "osascript -e 'tell application \"System Events\"\n\ttell application \"Google Chrome\" to activate\n\tkeystroke \"r\" using {command down}\nend tell'",
             "selector": "source.sass",
             "shell": true
+        },
+
+        {
+            "name": "SASS",
+            "cmd": ["sass", "src/web/static/index.scss:src/web/static/index.css"],
+            "working_dir": "${project_path}",
+            "path": "/usr/local/bin:$PATH"   
         }
     ]
 }
