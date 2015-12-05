@@ -21,7 +21,9 @@
                         <span class="dot"></span>
                     {%- else -%}
                         {% set status = _paper.get_status() %}
-                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if paper and _paper is sameas paper %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format='html')}}"></a>
+                        {% set current = paper and _paper is sameas paper %}
+                        {% if current %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
+                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format=format)}}"></a>
                     {%- endif %}</td>
                 {%- endfor %}</tr>
             {% endfor %}
