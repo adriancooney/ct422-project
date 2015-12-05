@@ -10,3 +10,7 @@ class Category(Base):
     name = Column(String)
     code = Column(String)
     modules = relationship("Module", backref="category")
+
+    @staticmethod
+    def getByCode(session, code):
+        return session.query(Category).filter(Category.code == code.upper()).one()
