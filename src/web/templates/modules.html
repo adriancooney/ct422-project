@@ -5,7 +5,7 @@
 {% block body %}
 <div class="modules">
     <header>
-        <h2><a href="{{ url_for('get_institution', institution=category.institution.code) }}">{{category.institution.code}}</a>/<a href="{{url_for('list_category_modules', category=category.code) }}">{{category.code}}</a></h2>
+        <h2><strong><a href="{{ url_for('get_institution', institution=category.institution.code) }}">{{category.institution.code}}</a></strong>/<a href="{{url_for('list_category_modules', category=category.code) }}">{{category.code}}</a></h2>
         <h3>{{category.name}}</h3>
     </header>
     <div class="list">

@@ -1,3 +1,4 @@
+import project.src.model
 from project.src.model.base import Base
 from sqlalchemy import Column, Integer, Float, String, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
@@ -41,5 +42,8 @@ class Question(Base):
             'content': self.content
         }
 
-    def get_similar(self, threshold=0.4):
+    def get_similar(self, threshold=None):
+        if not threshold:
+            threshold = project.src.model.Module.SIMILARITY_THRESHOLD
+
         return filter(lambda s: s.similarity > threshold, self.similar)
