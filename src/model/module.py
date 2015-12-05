@@ -24,7 +24,7 @@ from project.src.model.paper import NoLinkException, UnparseableException, Paper
 from project.src.model.base import Base
 
 class Module(Base):
-    SIMILARITY_THRESHOLD = 0.2
+    SIMILARITY_THRESHOLD = 0.6
 
     __tablename__ = "module"
 
