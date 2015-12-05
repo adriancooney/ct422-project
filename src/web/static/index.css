@@ -5,7 +5,7 @@ body {
   font-family: "Kefa", sans-serif;
   background: #FAFAFA; }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, p {
   margin: 0; }
 
 a {
@@ -33,22 +33,30 @@ section {
   width: 940px;
   margin: 0 auto; }
 
-.module header {
+.module header, .modules header {
   display: flex;
   justify-content: space-between;
   font-size: 180%;
   margin: 12px 0; }
-  .module header h2 {
+  .module header h2, .modules header h2 {
     font-family: "Avenir Next";
     color: #E2E2E2;
     font-weight: 400; }
-  .module header h3 {
+  .module header h3, .modules header h3 {
     flex: 1;
     text-align: right;
     padding-top: 10px;
     font-size: 124%; }
-  .module header a:hover {
+  .module header a:hover, .modules header a:hover {
     border-bottom: none; }
+
+.module .error {
+  margin-top: 60px; }
+
+.modules .list {
+  column-count: 2;
+  -webkit-column-count: 2;
+  -moz-column-count: 2; }
 
 .papers table {
   width: 100%; }
@@ -71,35 +79,161 @@ section {
     font-weight: 400;
     color: #777;
     padding-right: 8px; }
-.papers .dot {
+
+.dot {
   display: inline-block;
   width: 16px;
   height: 16px;
   background-color: #E2E2E2;
   border-radius: 16px; }
-.papers a.dot:hover {
+
+a.dot:hover {
   transform: scale(1.5);
   border: none; }
-  .papers a.dot:hover:after {
+  a.dot:hover:after {
     position: absolute;
     width: 16px;
     height: 16px;
     background: blue; }
-.papers a.dot.available {
+  a.dot:hover:before {
+    content: attr(data-status);
+    font-family: "Avenir Next";
+    font-size: 30%;
+    background: #777;
+    height: 14px;
+    color: #777;
+    position: absolute;
+    padding-top: 2px;
+    padding-right: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    color: rgba(0, 0, 0, 0.5); }
+a.dot.available {
   background-color: #B0E57C; }
-.papers a.dot.unavailable {
-  background-color: #FFF0AA; }
-.papers a.dot.unparseable {
+a.dot.unavailable {
   background-color: #FFAEAE; }
-.papers a.dot.unindexed {
+a.dot.unparseable {
+  background-color: #ffe777; }
+a.dot.unindexed {
   background-color: #B4D8E7; }
-.papers a.dot.available:before {
+a.dot.available:before {
   background-color: #B0E57C; }
-.papers a.dot.unavailable:before {
-  background-color: #FFF0AA; }
-.papers a.dot.unparseable:before {
+a.dot.unavailable:before {
   background-color: #FFAEAE; }
-.papers a.dot.unindexed:before {
+a.dot.unparseable:before {
+  background-color: #ffe777; }
+a.dot.unindexed:before {
   background-color: #B4D8E7; }
+a.dot.current {
+  border: 4px solid #418EE5;
+  transform: scale(2.4); }
+  a.dot.current:hover:before {
+    display: none; }
+
+.index {
+  font-family: "Kefa";
+  background-color: #fff;
+  border-radius: 60px;
+  border: 4px solid #E2E2E2;
+  color: #E2E2E2;
+  padding: 2px 12px 2px 6px;
+  font-weight: normal;
+  position: relative;
+  z-index: 1; }
+  .index a {
+    color: inherit;
+    border: none; }
+  .index .dot {
+    vertical-align: 0%;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    margin-right: 6px; }
+  .index.index-question {
+    background-color: #418EE5;
+    border-color: #1a68bf;
+    color: #fff; }
+  .index.index-similar {
+    background-color: #B0E57C;
+    border-color: #8ad83c;
+    color: #63a721; }
+
+.question {
+  border: 4px solid #E5E5E5;
+  margin-top: 30px;
+  padding: 0; }
+  .question header {
+    margin: 0;
+    margin-top: -15px;
+    margin-left: -15px;
+    margin-bottom: 12px;
+    font-size: 100%;
+    position: relative;
+    display: flex; }
+    .question header a {
+      color: inherit; }
+      .question header a:hover {
+        border: none; }
+  .question .similar {
+    margin-top: 12px; }
+    .question .similar .index {
+      display: inline-block;
+      padding-right: 4px;
+      padding-left: 4px;
+      font-size: 70%;
+      opacity: 0.6;
+      border-width: 3px; }
+      .question .similar .index:hover {
+        opacity: 1; }
+  .question .question {
+    border: none;
+    margin-left: 18px;
+    margin-top: 0;
+    box-shadow: -18px 0 0 #f9f9f9;
+    border-left: 4px solid #E5E5E5; }
+    .question .question header {
+      margin-top: 0; }
+    .question .question .content {
+      padding: 6px 12px 12px 12px; }
+      .question .question .content p {
+        margin: 0; }
+  .question.first > header:before {
+    width: 0;
+    height: 0;
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -7px;
+    border-style: solid;
+    border-color: transparent transparent transparent #E5E5E5;
+    border-width: 23px 0 0 23px; }
+  .question.first > header:after {
+    width: 0;
+    height: 0;
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.6px;
+    border-style: solid;
+    border-color: transparent transparent transparent #f9f9f9;
+    border-width: 18px 0 0 18px; }
+
+.error {
+  text-align: center;
+  width: 60%;
+  margin: 0 auto;
+  padding: 12px;
+  border-radius: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: "Avenir Next"; }
+  .error h3 {
+    font-size: 140%;
+    margin-bottom: 8px; }
+  .error p {
+    margin: 0; }
+  .error.unavailable {
+    background-color: #FFAEAE; }
+  .error.unparseable {
+    background-color: #ffe777; }
 
 /*# sourceMappingURL=index.css.map */

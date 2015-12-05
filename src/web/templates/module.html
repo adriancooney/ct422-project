@@ -12,19 +12,40 @@
     <section class="papers">
         <table>
             <tr><th>Paper</th>{% for year in range(2005, 2015) %}<th>{{year}}</th>{% endfor %}</tr>
+            {% set papers = module.get_grouped_papers() %}
             {% for period, group in papers | dictsort | reverse %}    
                 <tr><td>{{period}}</td>{% for year in range(2005, 2015) -%}
-                    {% set paper = group[year] %}
+                    {% set _paper = group[year] %}
 
-                    <td>{% if not paper -%}
+                    <td>{% if not _paper -%}
                         <span class="dot"></span>
                     {%- else -%}
-                        {% set status = paper.get_status() %}
-                        <a data-status="{{status | capitalize }}" class="dot {{ status }}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format='html')}}"></a>
+                        {% set status = _paper.get_status() %}
+                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if paper and _paper is sameas paper %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format='html')}}"></a>
                     {%- endif %}</td>
                 {%- endfor %}</tr>
             {% endfor %}
         </table>
     </section>
+    {% if paper %}
+        {% set paper_status = paper.get_status() %}
+        {% if paper_status != "available" %}
+            <div class="error {{paper_status}}">
+                {% if paper_status == "unparseable" %}
+                    <h3>{{paper.period}} {{paper.year_start}} paper is corrupt.</h3>
+                    <p>We were not able to extract any data from the {{paper.period}} {{paper.year_start}}. Our parser is still young, clumsy and fragile (but it's getting better though).</p>
+                {% elif paper_status == "unavailable" %}
+                    <h3>{{paper.period}} {{paper.year_start}} paper is unavailable.</h3>
+                    <p>Unfortunately, {{module.category.institution.name}} have an exam paper for {{paper.period}} {{paper.year_start}} but have not made it available online for download.</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="paper">
+                {% for question in paper.get_root_questions() %}
+                    {{ components.question(question) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

@@ -6,18 +6,23 @@ $font-display: "Avenir Next";
 $theme-light-grey: #E2E2E2;
 $theme-grey: #777;
 $theme-blue: #418EE5;
+$theme-green: #B0E57C;
+
+$theme-border-radius: 8px;
 
 $theme-unindexed: #B4D8E7;
-$theme-unavailable: #FFF0AA;
-$theme-unparseable: #FFAEAE;
-$theme-available: #B0E57C;
+$theme-unavailable: #FFAEAE;
+$theme-unparseable: darken(#FFF0AA, 10%);
+$theme-available: $theme-green;
+$theme-similar: $theme-green;
+$theme-question: $theme-blue;
 
 body {
     font-family: $font-reading, sans-serif;
     background: #FAFAFA;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, p {
     margin: 0;
 }
 
@@ -58,7 +63,7 @@ section {
     margin: 0 auto;
 }
 
-.module {
+.module, .modules {
     header {
         display: flex;
         justify-content: space-between;
@@ -81,6 +86,20 @@ section {
         a:hover {
             border-bottom: none;
         }
+    }
+}
+
+.module {
+    .error {
+        margin-top: 60px;
+    }
+}
+
+.modules {
+    .list {
+        column-count: 2;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
     }
 }
 
@@ -119,55 +138,213 @@ section {
             }
         }
     }
+}
 
-    $radius: 8px;
+$theme-dot-radius: 8px;
+$theme-dot-diameter: $theme-dot-radius * 2;
 
-    .dot {
+.dot {
+    display: inline-block;
+    width: $theme-dot-diameter;
+    height: $theme-dot-diameter;
+    background-color: $theme-light-grey;
+    border-radius: $theme-dot-diameter;
+}
 
-        display: inline-block;
-        width: $radius * 2;
-        height: $radius * 2;
-        background-color: $theme-light-grey;
-        border-radius: $radius * 2;
-    }
+a.dot {
+    &:hover {
+        transform: scale(1.5);
+        border: none;
 
-    a.dot {
-        &:hover {
-            transform: scale(1.5);
-            border: none;
-
-            &:after {
-                position: absolute;
-                width: $radius*2;
-                height: $radius*2;
-                background: blue;
-            }
-
-            // &:before {
-            //     content: attr(data-status);
-            //     font-family: $font-display;
-            //     font-size: 30%;
-            //     background: $theme-grey;
-            //     height: $radius * 2 - 2px;
-            //     color: $theme-grey;
-            //     position: absolute;
-            //     padding-top: 2px;
-            //     padding-right: $radius;
-            //     border-top-right-radius: $radius;
-            //     border-bottom-right-radius: $radius;
-            //     color: rgba(0,0,0,0.5);
-            // }
+        &:after {
+            position: absolute;
+            width: $theme-dot-diameter;
+            height: $theme-dot-diameter;
+            background: blue;
         }
 
-        &.available { background-color: $theme-available; }
-        &.unavailable { background-color: $theme-unavailable; }
-        &.unparseable { background-color: $theme-unparseable; }
-        &.unindexed { background-color: $theme-unindexed; }
+        &:before {
+            content: attr(data-status);
+            font-family: $font-display;
+            font-size: 30%;
+            background: $theme-grey;
+            height: $theme-dot-diameter - 2px;
+            color: $theme-grey;
+            position: absolute;
+            padding-top: 2px;
+            padding-right: $theme-dot-radius;
+            border-top-right-radius: $theme-dot-radius;
+            border-bottom-right-radius: $theme-dot-radius;
+            color: rgba(0,0,0,0.5);
+        }
+    }
 
-        &.available:before { background-color: $theme-available; }
-        &.unavailable:before { background-color: $theme-unavailable; }
-        &.unparseable:before { background-color: $theme-unparseable; }
-        &.unindexed:before { background-color: $theme-unindexed; }
+    &.available { background-color: $theme-available; }
+    &.unavailable { background-color: $theme-unavailable; }
+    &.unparseable { background-color: $theme-unparseable; }
+    &.unindexed { background-color: $theme-unindexed; }
 
+    &.available:before { background-color: $theme-available; }
+    &.unavailable:before { background-color: $theme-unavailable; }
+    &.unparseable:before { background-color: $theme-unparseable; }
+    &.unindexed:before { background-color: $theme-unindexed; }
+
+    &.current {
+        border: 4px solid $theme-blue;
+        transform: scale(2.4);
+
+        &:hover:before { display: none }
     }
 }
+
+.index {
+    font-family: $font-reading;
+    background-color: #fff;
+    border-radius: 60px;
+    border: 4px solid $theme-light-grey;
+    color: $theme-light-grey;
+    padding: 2px 12px 2px 6px;
+    font-weight: normal;
+    position: relative;
+    z-index: 1;
+
+    a {
+        color: inherit;
+        border: none;
+    }
+
+    .dot {
+        vertical-align: 0%;
+        width: 10px;
+        height: 10px;
+        background-color: #fff;
+        margin-right: 6px;
+    }
+
+    &.index-question {
+        background-color: $theme-question;
+        border-color: darken($theme-question, 15%);
+        color: #fff;
+    }
+
+    &.index-similar {
+        background-color: $theme-similar;
+        border-color: darken($theme-similar, 15%);
+        color: darken($theme-similar, 30%)
+    }
+}
+
+.question {
+    $theme-border-color: #E5E5E5;
+    $theme-outer-border-color: $theme-border-color;
+    $theme-border-width: 4px;
+    $theme-gutter-width: 18px;
+
+    border: $theme-border-width solid $theme-outer-border-color;
+    margin-top: 30px;
+    padding: 0;
+
+    header {
+        margin: 0;
+        margin-top: -15px;
+        margin-left: -15px;
+        margin-bottom: 12px;
+        font-size: 100%;
+        position: relative;
+        display: flex;
+
+        a {
+            color: inherit;
+
+            &:hover { border: none }
+        }
+    }
+
+    .similar {
+        margin-top: 12px;
+
+        .index {
+            display: inline-block;
+            padding-right: 4px;
+            padding-left: 4px;
+            font-size: 70%;
+            opacity: 0.6;
+            border-width: 3px;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .question {
+        border: none;
+        margin-left: $theme-gutter-width;
+        margin-top: 0;
+        box-shadow: -18px 0 0 lighten($theme-border-color, 8%);
+        border-left: 4px solid $theme-border-color;
+
+        header {
+            margin-top: 0;
+        }
+
+        .content {
+            padding: 6px 12px 12px 12px;
+
+            p {
+                margin: 0;
+            }
+        }
+    }
+
+    &.first > header {
+        $tri-margin-top: -4px;
+        $tri-margin-left: -7px;
+        
+        &:before {
+            width: 0;
+            height: 0;
+            content: '';
+            position: absolute;
+            top: $tri-margin-top;
+            left: $tri-margin-left;
+            border-style: solid;
+            border-color: transparent transparent transparent $theme-border-color;
+            border-width: ($theme-gutter-width + 5) 0 0 ($theme-gutter-width + 5);
+        }
+
+        &:after {
+            width: 0;
+            height: 0;
+            content: '';
+            position: absolute;
+            left: $tri-margin-left;
+            top: $tri-margin-top + ($theme-border-width * 1.4);
+            border-style: solid;
+            border-color: transparent transparent transparent lighten($theme-border-color, 8%);
+            border-width: $theme-gutter-width 0 0 $theme-gutter-width;
+        }
+    }
+}
+.error {
+    text-align: center;
+    width: 60%;
+    margin: 0 auto;
+    padding: 12px;
+    border-radius: 12px;
+    color: rgba(0,0,0,0.6);
+    font-family: $font-display;
+
+    h3 {
+        font-size: 140%;
+        margin-bottom: 8px;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    &.unavailable { background-color: $theme-unavailable }
+    &.unparseable { background-color: $theme-unparseable; }
+}
+

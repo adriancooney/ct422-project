@@ -17,6 +17,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import relationship, Session, reconstructor
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 
+from project.src.model.question import Similar
 from project.src.model.paper import NoLinkException, UnparseableException, PaperNotFound, Paper
 from project.src.model.base import Base
 
@@ -43,7 +44,7 @@ class Module(Base):
 
         for paper in self.papers:
             try:
-                if not paper.is_indexed():
+                if force or not paper.is_indexed():
                     print "Indexing %r" % paper
                     paper.index()
                 else:
@@ -58,6 +59,13 @@ class Module(Base):
         self.is_indexed = True
 
         session = Session.object_session(self)
+
+        self.vectorize()
+
+        for question in self.questions:
+            question.similar = self.find_similar_questions(question)
+            session.add(question)
+
         session.add(self)
         session.commit()
 
@@ -94,7 +102,20 @@ class Module(Base):
             if paper.questions:
                 questions += paper.questions
 
-        return questions
+        return filter(lambda q: q.content, questions)
+
+    def get_grouped_papers(self):
+        # Group by period
+        get_period = lambda p: p.period
+        get_year = lambda p: p.year_start
+        papers = [paper for paper in sorted(self.papers, key=get_period)] # Sort by period
+        papers = { period: [p for p in group] for period, group in groupby(papers, key=get_period) } # Group by period
+
+        # Now make a dict of papers by year
+        for period, group in papers.iteritems():
+            papers[period] = { paper.year_start: paper for paper in sorted(group, key=get_year) }
+
+        return papers
 
     def vectorize(self):
         """
@@ -171,7 +192,8 @@ class Module(Base):
         # of D_n x Query and stick it in a datafram
         similarity = cosine_similarity(self.tfidf_documents, query).flatten()
 
-        return DataFrame(zip(self.questions, similarity), columns=["question", "similarity"])
+        # Generate the similarity object
+        return [Similar(question=q, similarity=s) for q, s in zip(self.questions, similarity)]
 
     def similarity_analysis(self, paper):
         """Perform a similarity analysis over all the questions in paper"""

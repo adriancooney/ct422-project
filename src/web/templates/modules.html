@@ -9,10 +9,16 @@
 
 {% block body %}
 <div class="modules">
-    <ul>
-        {% for module in category.modules %}
-            <li><a {% if module.is_indexed() %}class="indexed"{% endif %} href="/module/{{module.code}}/">{{module.code}} - {{module.name}}</a></li>
-        {% endfor %}
-    </ul>
+    <header>
+        <h2><a href="{{ url_for('list_categories', institution=category.institution.code) }}">{{category.institution.code}}</a>/<a href="{{url_for('list_category_modules', category=category.code) }}">{{category.code}}</a></h2>
+        <h3>{{category.name}}</h3>
+    </header>
+    <div class="list">
+        <table>
+            {% for module in category.modules | sort(attribute='code') %}
+                <tr><td {% if module.is_indexed() %}class="indexed"{% endif %}><a href="/module/{{module.code}}/">{{module.code}}</a></td><td><a href="/module/{{module.code}}/">{{module.name}}</a></td></tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 {% endblock %}

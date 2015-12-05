@@ -4,7 +4,7 @@ import os.path
 import sqlalchemy
 from flask import Flask, abort, request
 from itertools import groupby
-from project.src.model import Module, Paper, Category
+from project.src.model import Module, Paper, Category, Institution
 from project.src.model.paper import UnparseableException, NoLinkException, InvalidPathException
 from project.src.model.paper_pdf import PaperNotFound
 from project.src.config import Session, APP_PORT, APP_HOST
@@ -49,23 +49,13 @@ def get_module(module):
 
     try:
         module = Module.getByCode(session, module)
-
-        # Group by period
-        get_period = lambda p: p.period
-        get_year = lambda p: p.year_start
-        papers = [paper for paper in sorted(module.papers, key=get_period)] # Sort by period
-        papers = { period: [p for p in group] for period, group in groupby(papers, key=get_period) } # Group by period
-
-        # Now make a dict of papers by year
-        for period, group in papers.iteritems():
-            papers[period] = { paper.year_start: paper for paper in sorted(group, key=get_year) }
-
+        papers = module.get_grouped_papers()
 
         # if module.is_indexed() and sum(map(lambda p: len(p.questions), module.papers)) > 5:
         #     popular = module.find_most_popular_questions()
         #     return flask.render_template('module.html', module=module, popular=popular)
         # else:
-        return flask.render_template('module.html', module=module, papers=papers)
+        return flask.render_template('module.html', module=module)
 
     except NoResultFound:
         return fail(404, "Module not found.")
@@ -106,20 +96,21 @@ def get_module_report(module, year, period):
 # Example:
 # 
 #   /paper/ct422-1/2007/summer/1?question=0.1
-
-@app.route('/paper/<module>/<year>', defaults={ 'period': None, 'sitting': 1, 'format': 'html' })
-@app.route('/paper/<module>/<year>.<format>', defaults={ 'period': None, 'sitting': 1 })
-@app.route('/paper/<module>/<year>/<period>', defaults={ 'sitting': 1, 'format': 'html' })
-@app.route('/paper/<module>/<year>/<period>.<format>', defaults={ 'sitting': 1 })
-@app.route('/paper/<module>/<year>/<period>/<sitting>', defaults={ 'format': 'html' })
-@app.route('/paper/<module>/<year>/<period>/<sitting>.<format>')
+@app.route('/module/<module>/<year>', defaults={ 'period': None, 'sitting': 1, 'format': 'html' })
+@app.route('/module/<module>/<year>.<format>', defaults={ 'period': None, 'sitting': 1 })
+@app.route('/module/<module>/<year>/<period>', defaults={ 'sitting': 1, 'format': 'html' })
+@app.route('/module/<module>/<year>/<period>.<format>', defaults={ 'sitting': 1 })
+@app.route('/module/<module>/<year>/<period>/<sitting>', defaults={ 'format': 'html' })
+@app.route('/module/<module>/<year>/<period>/<sitting>.<format>')
 def get_paper(module, year, period, sitting, format):
     try:
-        if not format in ['json', 'pdf', 'html']:
+        if not format in ['pdf', 'html']:
             return fail(401, "Unknown format %s" % format)
 
-        selection = Module.code.like(module.upper() + "%") & \
-            (Paper.module_id == Module.id) 
+        module = Module.getByCode(session, module)
+
+        # Get the paper
+        selection = Paper.module_id == module.id
 
         if period:
             selection = selection & (Paper.period == (period[0].upper() + period[1:].lower()))
@@ -136,6 +127,7 @@ def get_paper(module, year, period, sitting, format):
             if not paper:
                 raise NoResultFound()
 
+        # Index the paper
         if not paper.is_indexed():
             try:
                 paper.index()
@@ -147,6 +139,7 @@ def get_paper(module, year, period, sitting, format):
             except PaperNotFound:
                 return fail(404, "PDF not found on NUIG Exam papers for %r." % paper)
 
+        # If they just want the PDF, serve em that
         if format == 'pdf':
             # No downloading here.
             return flask.redirect(paper.link, code=302)
@@ -166,21 +159,13 @@ def get_paper(module, year, period, sitting, format):
             if not question:
                 return fail(404, "Question in paper %d not found." % paper.id)
 
-            if format == 'json':
-                return flask.jsonify(paper=paper.to_dict(), question=question.to_dict())
-            elif format == 'html':
-                return flask.render_template("question.html", question=question)
+            return flask.render_template("question.html", question=question)
         else:
-            if format == 'json':
-                return flask.jsonify(paper=paper)
-            elif format == 'html':
-                return flask.render_template("paper.html", paper=paper)
+            return flask.render_template("module.html", module=module, paper=paper)
     except NoResultFound:
         return fail(404, "Paper not found.")
     except KeyError:
         return fail(401, "Invalid period. Periods available: Winter, Summer, Autumn, Spring")
-    except Exception, error:
-        print error
 
 @app.route("/modules/<category>/")
 def list_category_modules(category):
@@ -190,12 +175,15 @@ def list_category_modules(category):
         ).one()
 
         return flask.render_template('modules.html', category=category)
-    except:
+    except NoResultFound:
         return fail(404, "Category not found.")
 
-@app.route("/")
-def list_categories():
-    categories = session.query(Category).order_by(Category.code).all()
+@app.route("/<institution>/")
+def list_categories(institution):
+    categories = session.query(Category).filter(
+        (Category.institution_id == Institution.id) & \
+        (Institution.code == institution)
+    ).all()
 
     return flask.render_template('module_categories.html', categories=categories)
 

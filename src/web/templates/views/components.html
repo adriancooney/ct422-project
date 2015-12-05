@@ -1,21 +1,30 @@
-{% macro question(question, similar=None, show_paper=False) %}
-<div class="question">
-    <h4 id="Q{{question.path | join('.')}}">{% for i in question.pretty_path %}<span>{{i}}.</span>{% endfor %}</h4>
+{% macro question(_question, first=False) %}
+<section class="question {% if first %}first{% endif %}" id="Q{{_question.path | join('.')}}">
+    <header>
+        <h4 class="index index-question"><span class="dot"></span> <a href="#Q{{_question.path | join('.')}}">{{_question.pretty_path[-1]}}</a></h4>
+    </header>
+    {% if _question.content and _question.content | trim %}
     <div class="content">
-        {% if show_paper -%}
-            <h3>{{question.paper.year_start}} {{question.paper.period}} {% block question_paper_title %}{% endblock %}</h3>
-        {% endif %}
-
-        <p>{{question.content}}</p>
-
-        {% if similar %}
-            <p class="similar">{% for qs in similar -%}
-                <a href="{{url_for('get_paper', module=qs.question.paper.module.code, year=qs.question.paper.year_start, period=qs.question.paper.period, format='html', sitting=qs.question.paper.sitting)}}?q={{qs.question.path | join('.')}}">{{qs.question.paper.year_start}} {{qs.question.paper.period}} {{ qs.question.pretty_path | join(".") }}</a>
-            {%- endfor %}</p>
+        <p>{{_question.content | replace("\uFFFD", "")}}</p>
+        {% if _question.similar %}
+            <div class="similar">
+            {%- for __question in (_question.get_similar() | sort(reverse=True, attribute='similarity')) -%}
+                {% if loop.index < 4 %}
+                    <h4 class="index index-similar"><a href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period)}}#Q{{__question.question.path | join(".")}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a></h4>
+                {% endif %}
+            {%- endfor -%}
+            <h4 class="index index-similar"><a href="#">View all</a></h4>
+            </div>
         {% endif %}
     </div>
-</div>
-{% endmacro %}
+    {% endif %}
 
-{% macro index(indexes) %}
+    {% if _question.children | length > 0 %}
+    <div class="children">
+        {% for __question in _question.children %}
+            {{ question(__question, first=loop.first) }}
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
 {% endmacro %}

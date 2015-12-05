@@ -98,7 +98,7 @@ class Paper(Base):
             # Parse the pages contents
             # TODO: Parse first page.
             # TODO: Discuss: should we insert questions into the database without content (i.e. just keep the indices)?
-            self.questions = filter(lambda q: bool(q.content), Paper.parse_pages(pages[1:]))
+            self.questions = Paper.parse_pages(pages[1:])
         except:
             # Save the indexing information
             self.save()
@@ -164,6 +164,9 @@ class Paper(Base):
             if question.path == path:
                 return question
 
+    def get_root_questions(self):
+        return filter(lambda q: len(q.path) == 1, self.questions)
+
     def is_indexed(self):
         """Return whether a paper is indexed or not."""
         return self.indexed
@@ -190,6 +193,9 @@ class Paper(Base):
             return "unparseable"
         elif self.indexed and self.parseable:
             return "available"
+
+    def get_short_period(self):
+        return self.period[:3]
 
     ######################################
     # Paper parser.
@@ -254,7 +260,8 @@ class Paper(Base):
         logging.info("Parsing exam paper question pages.")
         logging.info(pages)
 
-        stack = [] # The stack that holds the current index path
+        index_stack = [] # The stack that holds the current index path
+        question_stack = [] # The stack that holds the current index path
         questions = []
 
         question, last_question, marker = None, None, 0
@@ -263,29 +270,38 @@ class Paper(Base):
         for token, start, end in Paper.entry.leaveWhitespace().scanString(pages, overlap=True):
             # Tiny function to push the current question onto the stack
             def push():
-                stack.append(index)
-                question = Question(stack)
+                index_stack.append(index)
+                question = Question(index_stack)
+
+                if question_stack:
+                    question_stack[-1].children.append(question)
+
+                question_stack.append(question)
                 questions.append(question)
                 return question
+
+            def pop():
+                index_stack.pop()
+                question_stack.pop()
 
             index = token[0] # The incoming index
 
             logging.info("0. Handling index %r" % index)
 
             # If the container is the paper, just push the question
-            if len(stack) == 0:
+            if len(index_stack) == 0:
                 logging.info("1. Pushing top level index %r." % index)
                 question = push()
                 continue
 
-            last_index = stack[-1] # The last index is the last item in the stack
+            last_index = index_stack[-1] # The last index is the last item in the stack
 
             if index.isSimilar(last_index):
                 logging.info("1.1 Similiar indexes %s and previous %s." % (index.index_type, last_index.index_type))
 
                 if last_index.isNext(index):
                     logging.info("1.1.1 Pushing index with same type as last index and in sequence.")
-                    stack.pop()
+                    pop()
                     question = push()
                 else:
                     logging.info("1.1.2 Question with similar indexes but not in sequence, ignoring.")
@@ -296,7 +312,7 @@ class Paper(Base):
                 parent_index, n = None, 0
 
                 # Go through the stack and find the similar index
-                for i, idx in reversed(list(enumerate(stack))):
+                for i, idx in reversed(list(enumerate(index_stack))):
                     if idx.isSimilar(index):
                         parent_index, n = idx, i
                         break
@@ -309,7 +325,8 @@ class Paper(Base):
                     # the found container.
                     if parent_index.isNext(index):
                         logging.info("1.2.1.1 Index in sequence, pushing into stack.")
-                        stack = stack[:n]
+                        index_stack = index_stack[:n]
+                        question_stack = question_stack[:n]
                         question = push()
                     else:
                         logging.info("1.2.1.2 Index not in sequence, ignoring")
@@ -319,7 +336,7 @@ class Paper(Base):
                 # can just discard it (it's probably marks). However if the previous index is 
                 # a section, we can just continue. 
                 elif index.i == 1 or last_index.is_section: 
-                    logging.info("1.2.2 Pushing new question %r." % index )
+                    logging.info("1.2.2 Pushing new question %r." % index)
                     question = push()
                 else:
                     logging.info("1.2.3 New index value not first in sequence, ignoring.")

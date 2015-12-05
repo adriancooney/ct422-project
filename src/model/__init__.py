@@ -4,4 +4,5 @@ from module import Module
 from paper import Paper
 from paper_pdf import PaperPDF
 from question import Question
+from index import Index
 from base import Base

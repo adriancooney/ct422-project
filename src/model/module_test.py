@@ -5,10 +5,10 @@ from project.src.config import Session
 
 session = Session()
 
-# def test_module_download():
-#     Paper.PAPER_DIR = "/tmp/ct422"
-#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
-#     papers = ct422.index(force=True)
+def test_module_download():
+    Paper.PAPER_DIR = "/tmp/ct422"
+    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+    papers = ct422.index(force=True)
 
 # def test_find_similar():
 #     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
@@ -33,10 +33,10 @@ session = Session()
 
 #     print ct422.latest_similarity_analysis(groupByYear=True)
 
-def test_popular():
-    ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
+# def test_popular():
+#     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
 
-    ct422.find_most_popular_questions()
+#     ct422.find_most_popular_questions()
     
 # def test_get_questions():
 #     ct422 = session.query(Module).filter(Module.code == "CT422-1").one()
