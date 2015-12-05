@@ -2,12 +2,13 @@ import flask
 import logging
 import os.path
 import sqlalchemy
+from logging.handlers import RotatingFileHandler
 from flask import Flask, abort, request
 from itertools import groupby
 from project.src.model import Module, Paper, Category, Institution
 from project.src.model.paper import UnparseableException, NoLinkException, InvalidPathException
 from project.src.model.paper_pdf import PaperNotFound
-from project.src.config import Session, APP_PORT, APP_HOST, APP_DEBUG
+from project.src.config import Session, APP_PORT, APP_HOST, APP_DEBUG, APP_LOG
 from werkzeug.contrib.cache import SimpleCache
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -183,4 +184,10 @@ def get_index():
     return flask.render_template('index.html', modules=modules)
 
 if __name__ == '__main__':
+    if APP_LOG:
+        handler = RotatingFileHandler(APP_LOG, maxBytes=10000, backupCount=1)
+        handler.setLevel(logging.DEBUG)
+        logging.getLogger('werkzeug').addHandler(handler)
+        app.logger.addHandler(handler)
+
     app.run(port=APP_PORT, host=APP_HOST, debug=APP_DEBUG)
