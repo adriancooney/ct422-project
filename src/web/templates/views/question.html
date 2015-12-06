@@ -1,0 +1,147 @@
+{% macro main(question, first, direct=False) %}
+    {% call wrapper(question, first, direct) %}
+        {% if question.content or question.view_edit %}
+            {{ content(question, direct) }}
+        {% endif %}
+    {% endcall %}
+{% endmacro %}
+
+{% macro content(question, direct) %}
+    <div class="content">
+        {% if question.view_edit %}
+            {{ edit(question) }}
+        {% else %}
+            <p>{{question.content}}</p>
+
+            {% if not direct %}
+                <div class="detail">
+                    {# Display controls if we have a content body #}
+                    {% if question.content %}
+                        {{ controls(question) }}
+                    {% endif %}
+
+                    {% set similar = question.get_similar() %}
+
+                    {% if (similar | length) > 1 and not question.view_similar_expanded %}
+                        <div class="similar">
+                            {%- for sim in (similar | sort(reverse=True, attribute='similarity')) -%}
+                                {% if sim.question.id != question.id and loop.index < 5 -%}
+                                    <a class="button button-active" href="{{ question | question_link }}">{{sim.question.paper.short_period}} {{sim.question.paper.year_start}} {{sim.question.pretty_path | join(" ")}} ({{ "%.f" | format(sim.similarity * 100) }}%)</a>
+                                {%- endif %}
+                            {%- endfor -%}
+                            <a class="button button-active" href="{{ question | question_action('similar') }}">View all</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro edit(question) %}
+    <form method="POST" url="{{ question | question_action('edit') }}">
+        <textarea name="content">{% if question.content %}{{question.content}}{% endif %}</textarea>
+        <div class="grid">
+            <div class="grid-flex">
+                {% if not question.children %}
+                    <a class="button button-cancel" href="#">Delete Question</a>
+                {% endif %}
+                
+                <a class="button button-active" href="{{ question | question_action('history', direct=False) }}">View History</a>
+            </div>
+            <div class="grid-flex right">
+                <a class="button button-cancel" href="{{ question | question_link }}">Cancel</a>
+                <input type="submit" value="Save" class="button">
+            </div>
+        </div>
+    </form>
+{% endmacro %}
+
+{% macro history(question) %}
+    {% call wrapper(question) %}
+        {% for revision in question.revisions | sort(attribute='created_at', reverse=True) %}
+            <div class="content">
+                <p>{% if revision.content %}{{revision.content}}{% else %}<span class="faded">Text content emptied.</span>{% endif %}</p>
+                <div class="detail">
+                    {% if revision is not sameas question.revision %}
+                        <a class="button button-active" href="{{ question | question_action('revert', revision=revision.id)}}">Revert</a>
+                    {% endif %}
+
+                    {% if revision.visitor %}
+                        <p>Change made by <span>{{revision.visitor.ip }}</span> on {{revision.created_at | format_date}}</p>
+                    {% else %}
+                        <p>Content extracted from <a href="{{ question.paper | paper_link(format='pdf') }}">PDF</a> on {{revision.created_at | format_date}}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+        <div class="center faded padded">
+            <p>This question has no history.</p>
+        </div>
+        {% endfor %}
+    {% endcall %}
+{% endmacro %}
+
+{% macro wrapper(question, first, direct) %}
+    <section class="question {% if first %}first{% endif %} {% if direct %}direct{% endif %}" id="Q{{question.joined_path}}">
+        <header>
+            {{ index(question, direct) }}
+
+            {% if not question.content %}
+                {{ controls(question) }}
+            {% endif %}
+        </header>
+
+        {{ caller() }}
+
+        {% set similar = question.get_similar() %}
+        {% set has_children = (question.children | length > 0) %}
+        {% set has_similar = (question.view_similar_expanded and similar | length > 0) %}
+
+        {% if not direct or (has_children or has_similar) %}
+            <div class="children">
+                {% if has_similar %}
+                    {% for sim in question.get_similar() %}
+                        {{ main(sim.question, loop.first, True) }}
+                    {% endfor %}
+                {% endif %}
+                
+                {% if has_children %}
+                    {% for _question in question.children | sort(attribute='path') %}
+                        {{ main(_question, loop.first) }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endmacro %}
+
+{% macro index(question, direct) %}
+    {% if question.view_history or direct %}
+        {% set path %}
+            {% if direct %}{{question.paper.period}} {{question.paper.year}}{% endif %} {{ question.pretty_path | join(" ") }}
+        {% endset %}
+    {% else %}
+        {% set path = question.pretty_path[-1] %}
+    {% endif %}
+
+    <h4 class="index index-{% if direct %}similar{% else %}question{% endif %}"><span class="dot"></span><a href="#Q{{question.joined_path}}">{{ path | safe }}</a></h4>
+{% endmacro %}
+
+{% macro controls(question) %}
+<div class="controls">
+    <a class="button button-inactive button-edit" href="{{ question | question_action('edit') }}">Edit</a>
+
+    {% if question.view_similar_expanded %}
+        <a class="button button-cancel" href="{{ question | question_link }}">Close</a>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro paper(questions) %}
+    <div class="paper">
+        {% for _question in questions %}
+            {{ main(_question) }}
+        {% endfor %}
+    </div>
+{% endmacro %}

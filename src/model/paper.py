@@ -198,8 +198,13 @@ class Paper(Base):
         elif self.indexed and self.parseable:
             return "available"
 
-    def get_short_period(self):
+    @property
+    def short_period(self):
         return self.period[:3]
+
+    @property
+    def year(self):
+        return self.year_start
 
     ######################################
     # Paper parser.

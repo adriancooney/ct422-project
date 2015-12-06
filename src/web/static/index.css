@@ -331,6 +331,10 @@ a.dot.current {
     border-width: 18px 0 0 18px; }
   .question form .button {
     font-size: 80%; }
+  .question.direct {
+    background-color: #f0fae6; }
+    .question.direct .content p {
+      color: #315210; }
 
 :target {
   background-color: #ebf3fc; }

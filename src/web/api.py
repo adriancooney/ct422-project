@@ -71,19 +71,10 @@ def question(module, year, period, action):
     question_path = map(int, question_path.split("."))
     question = Question.getByPath(session, paper, question_path)
 
-    if action == 'edit':
-        if flask.request.method == "POST":
-            question.set_content(flask.g.visitor, flask.request.form["content"])
-
-            session.add(question)
-            session.commit()
-
-            return flask.redirect(flask.url_for('get_paper', 
-                module=module.code, year=paper.year_start, period=paper.period, format="html") + "#Q" + '.'.join(map(str, question.path)))
-        else:
-            return flask.render_template('module_paper.html', module=module, paper=paper, edit_question=question)
-    elif action == 'history':
-        return flask.render_template('module_history.html', module=module, paper=paper, question=question)
+    if action == 'history':
+        setattr(question, 'view_history', True)
+        # Render a question's history
+        return flask.render_template('module_history.html', module=module, paper=paper, history_question=question)
     elif action == 'revert':
         revision_id = int(flask.request.args.get('revision'))
 
@@ -94,13 +85,30 @@ def question(module, year, period, action):
         # all revisions.
         revision = Revision.findById(session, revision_id)
 
+        # Show the revision history
         question.set_content(flask.g.visitor, revision.content)
         session.add(question)
         session.commit()
 
         return flask.redirect(flask.url_for('question', module=module.code, year=paper.year_start, period=paper.period, action="history", question=question.joined_path))
+    elif action == 'edit':
+        if flask.request.method == "POST":
+            question.set_content(flask.g.visitor, flask.request.form["content"])
+
+            session.add(question)
+            session.commit()
+
+            return flask.redirect(flask.url_for('get_paper', 
+                module=module.code, year=paper.year_start, period=paper.period, format="html") + "#Q" + '.'.join(map(str, question.path)))
+
+        # Set the edit flag to expanded
+        setattr(question, 'view_edit', True)
     elif action == 'similar':
-        return flask.render_template('module_paper.html', module=module, paper=paper, similar_question=question)
+        # Set the flag to the question
+        setattr(question, 'view_similar_expanded', True)
+
+    # Render
+    return flask.render_template('module_paper.html', module=module, paper=paper)
 
 
 @app.route("/modules/<category>/")
@@ -134,6 +142,32 @@ def handle_http_exception(error):
 @app.template_filter('format_date')
 def format_date_filter(time):
     return format_datetime(time)
+
+@app.template_filter('question_action')
+def question_action_filter(question, action, direct=True, **kwargs):
+    return flask.url_for('question', 
+        module=question.paper.module.code, 
+        year=question.paper.year, 
+        period=question.paper.period, 
+        action=action, 
+        question=question.joined_path,
+        **kwargs) + ("#Q" + question.joined_path if direct else "")
+
+@app.template_filter('question_link')
+def question_link_filter(question, direct=True):
+    return flask.url_for('get_paper', 
+        module=question.paper.module.code, 
+        period=question.paper.period, 
+        year=question.paper.year, 
+        format='html') + ("#Q" + question.joined_path if direct else "")
+
+@app.template_filter('paper_link')
+def paper_link_filter(paper, format='html'):
+    return flask.url_for('get_paper', 
+        module=paper.module.code, 
+        year=paper.year, 
+        period=paper.period, 
+        format=format)
 
 if __name__ == '__main__':
     if APP_LOG:

@@ -493,6 +493,14 @@ a.dot {
             font-size: 80%;
         }
     }
+
+    &.direct {
+        background-color: lighten($theme-similar, 25%);
+
+        .content p {
+            color: darken($theme-similar, 50%);
+        }
+    }
 }
 
 :target {

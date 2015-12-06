@@ -1,4 +1,4 @@
-{% import 'views/components.html' as components %}
+{% import 'views/question.html' as question %}
 {% extends 'views/base.html' %}
 
 {% block title %}{{ module.code }} - {{ module.name }}{% endblock %}
@@ -34,7 +34,7 @@
         {% if popular %}
             <h5>Popular questions in {{module.code}}</h5>
             {% for question, similarity in popular %}
-                {{ components.question(question, show_children=False, full_path=True, controls=False) }}
+                {{ question.main(question, first=loop.first) }}
             {% endfor %}
         {% else %}
             <article>

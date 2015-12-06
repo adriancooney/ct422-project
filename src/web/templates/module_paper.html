@@ -1,4 +1,4 @@
-{% import 'views/components.html' as components %}
+{% import 'views/question.html' as question %}
 {% extends 'module.html' %}
 
 {% block module_content %}
@@ -15,7 +15,7 @@
             {% endif %}
         </div>
     {% else %}
-        {{ components.paper(paper.get_root_questions() | sort(attribute='path'), edit=edit_question, similar=similar_question) }}
+        {{ question.paper(paper.get_root_questions() | sort(attribute='path')) }}
 
         <article>
             <p class="center"><a href="#">View History</a> &bull; <a href="#">Report broken paper</a></p>

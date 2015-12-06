@@ -1,10 +1,10 @@
-{% import 'views/components.html' as components %}
+{% import 'views/question.html' as question %}
 {% extends 'module.html' %}
 
 {% block title %}{{question.paper.period}} {{question.paper.year_start}} {{question.pretty_path | join(".")}}{% endblock %}
 
 {% block module_content %}
 <div class="history">
-    {{ components.question_history(question) }}
+    {{ question.history(history_question) }}
 </div>
 {% endblock %}

@@ -1,27 +1,8 @@
-{% import 'views/components.html' as components %}
+{% import 'views/question.html' as question %}
 {% extends 'module.html' %}
 
 {% block module_content %}
-    {% set paper_status = paper.get_status() %}
-
-    {% if paper_status != "available" %}
-        <div class="error {{paper_status}}">
-            {% if paper_status == "unparseable" %}
-                <h3>{{paper.period}} {{paper.year_start}} paper is corrupt.</h3>
-                <p>We were not able to extract any data from the {{paper.period}} {{paper.year_start}}. Our parser is still young, clumsy and fragile (but it's getting better though).</p>
-            {% elif paper_status == "unavailable" %}
-                <h3>{{paper.period}} {{paper.year_start}} paper is unavailable.</h3>
-                <p>Unfortunately, {{module.category.institution.name}} have an exam paper for {{paper.period}} {{paper.year_start}} but have not made it available online for download.</p>
-            {% endif %}
-        </div>
-    {% else %}
-        <div class="paper">
-            {% for question in paper.get_root_questions() | sort(attribute='path') %}
-                {{ components.question(question, edit=edit_question) }}
-            {% endfor %}
-        </div>
-        <article>
-            <p class="center"><a href="#">View History</a> &bull; <a href="#">Report broken paper</a></p>
-        </article>
-    {% endif %}
+<div class="similar">
+    
+</div>
 {% endblock %}

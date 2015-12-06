@@ -60,7 +60,7 @@ class Question(Base):
     @property
     def content(self):
         if self.revision:
-            return self.revision.content
+            return self.revision.content.replace(u"\uFFFD", '')
 
     @property
     def joined_path(self):
