@@ -23,12 +23,13 @@
                         {% set status = _paper.get_status() %}
                         {% set current = paper and _paper is sameas paper %}
                         {% if current and status != 'unavailable' %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
-                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, sitting=1, format=format)}}" {% if format == 'pdf' %}target="_blank" title="View PDF"{% endif %}></a>
+                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, format=format)}}" {% if format == 'pdf' %}target="_blank" title="View PDF"{% endif %}></a>
                     {%- endif %}</td>
                 {%- endfor %}</tr>
             {% endfor %}
         </table>
     </section>
+    
     {% if paper %}
         {% set paper_status = paper.get_status() %}
         {% if paper_status != "available" %}
@@ -44,7 +45,7 @@
         {% else %}
             <div class="paper">
                 {% for question in paper.get_root_questions() %}
-                    {{ components.question(question) }}
+                    {{ components.question(question, edit=edit_question) }}
                 {% endfor %}
             </div>
         {% endif %}

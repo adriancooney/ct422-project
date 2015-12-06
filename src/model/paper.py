@@ -13,7 +13,9 @@ from project.src.model.base import Base
 from project.src.model.question import Question
 from project.src.model.index import Index
 from project.src.model.paper_pdf import PaperPDF, PaperNotFound
+from project.src.model.exception import NotFound, InvalidInput
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 from sqlalchemy.orm.session import Session
 
@@ -372,11 +374,18 @@ class Paper(Base):
         return session.query(Paper).filter(Paper.id == id).one()
 
     @staticmethod
-    def get_latest(session, module):
-        return session.query(Paper).filter(
-            (Paper.module_id == module.id) & \
-            (Paper.parseable == True)
-        ).order_by(Paper.year_start, Paper.order_by_period).first()
+    def find(session, module, year, period):
+        if not period.lower() in ["summer", "autumn", "winter", "sprint"]:
+            raise InvalidInput("paper", "Invalid period '%s'." % period)
+
+        try:
+            return session.query(Paper).filter(
+                (Paper.module_id == module.id) & \
+                (Paper.year_start == int(year)) & \
+                (Paper.period == (period[0].upper() + period[1:].lower()))
+            ).one()
+        except NoResultFound:
+            raise NotFound("paper", "Paper %s %s not found." % (period, year))
 
 class InvalidPathException(Exception):
     pass

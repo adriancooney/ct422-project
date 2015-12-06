@@ -7,34 +7,41 @@ $theme-light-grey: #E2E2E2;
 $theme-grey: #777;
 $theme-blue: #418EE5;
 $theme-green: #B0E57C;
+$theme-orange: #F5A623;
+$theme-red: #FFAEAE;
 
 $theme-border-radius: 8px;
 
 $theme-unindexed: #B4D8E7;
-$theme-unavailable: #FFAEAE;
+$theme-unavailable: $theme-red;
 $theme-unparseable: darken(#FFF0AA, 10%);
 $theme-available: $theme-green;
 $theme-similar: $theme-green;
 $theme-question: $theme-blue;
+
+$theme-action: $theme-blue;
+$theme-active: $theme-green;
+$theme-inactive: $theme-light-grey;
+$theme-cancel: $theme-red;
 
 body {
     font-family: $font-reading, sans-serif;
     background: #FAFAFA;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1, h2, h3, h4, h5, h6, p, li {
     margin: 0;
-}
 
-a {
-    color: $theme-blue;
-    text-decoration: none;
+    a {
+        color: $theme-blue;
+        text-decoration: none;
 
-    &:hover {
-        border-bottom: 1px solid $theme-blue;
+        &:hover {
+            border-bottom: 1px solid $theme-blue;
+        }
+
+        outline: none;
     }
-
-    outline: none;
 }
 
 strike {
@@ -44,6 +51,71 @@ strike {
 section {
     background: #fff;
     padding: 12px;
+}
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 100%;
+    border: 3px solid lighten($theme-action, 10%);
+    background: #fff;
+    border-radius: 6px;
+    font-family: $font-reading;
+    outline: none;
+    min-height: 120px;
+}
+
+form, article {
+    .center { text-align: center; }
+    .right { text-align: right; }
+}
+
+article {
+    padding: 12px;
+
+    .faded {
+        color: rgba(0,0,0,0.3);
+    }
+
+    h1 {
+        font-size: 200%;
+        margin: 18px;
+    }
+
+    h2 {
+        font-size: 140%;
+        margin: 12px 0;
+    }
+}
+
+.button {
+    border: 3px solid darken($theme-action, 8%);
+    background: $theme-action;
+    color: #fff;
+    border-radius: 30px;
+    padding: 2px 6px;
+    font-size: 70%;
+    font-family: $font-reading;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &.button-active {
+        background: $theme-active;
+        border-color: darken($theme-active, 10%);
+        color: darken($theme-active, 40%);
+    }
+
+    &.button-inactive {
+        background: $theme-inactive;
+        border-color: darken($theme-inactive, 10%);
+        color: darken($theme-inactive, 30%);
+    }
+
+    &.button-cancel {
+        background: $theme-cancel;
+        border-color: darken($theme-cancel, 10%);
+        color: darken($theme-cancel, 50%);
+    }
 }
 
 .header {
@@ -268,11 +340,20 @@ a.dot {
         font-size: 100%;
         position: relative;
         display: flex;
+        justify-content: flex-start;
 
-        a {
+        .index a {
             color: inherit;
 
             &:hover { border: none }
+        }
+
+        .button {
+            opacity: 0.5;
+
+            &:hover {
+                opacity: 1;
+            }
         }
     }
 
@@ -285,19 +366,22 @@ a.dot {
         }
     }
 
-    .similar {
+    .detail {
+        display: flex;
+        justify-content: flex-start;
         margin-top: 12px;
 
-        .index {
-            display: inline-block;
-            padding-right: 4px;
-            padding-left: 4px;
-            font-size: 70%;
-            opacity: 0.6;
-            border-width: 3px;
+        .button-edit {
+            margin-right: 8px;
+        }
 
-            &:hover {
-                opacity: 1;
+        .similar {
+            .button {
+                opacity: 0.6;
+
+                &:hover {
+                    opacity: 1;
+                }
             }
         }
     }
@@ -342,6 +426,12 @@ a.dot {
             border-width: $theme-gutter-width 0 0 $theme-gutter-width;
         }
     }
+
+    form {
+        .button {
+            font-size: 80%;
+        }
+    }
 }
 
 :target {
@@ -374,26 +464,4 @@ a.dot {
 
     &.unavailable { background-color: $theme-unavailable }
     &.unparseable { background-color: $theme-unparseable; }
-}
-
-article {
-    padding: 12px;
-
-    .center {
-        text-align: center;
-    }
-
-    .faded {
-        color: rgba(0,0,0,0.3);
-    }
-
-    h1 {
-        font-size: 200%;
-        margin: 18px;
-    }
-
-    h2 {
-        font-size: 140%;
-        margin: 12px 0;
-    }
 }

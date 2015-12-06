@@ -16,12 +16,14 @@ from nltk.tokenize import RegexpTokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import relationship, Session, reconstructor
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.sql import func
 
 from project.src.model.question import Question, Similar
 from project.src.model.paper import NoLinkException, UnparseableException, PaperNotFound, Paper
 from project.src.model.base import Base
+from project.src.model.exception import NotFound
 
 class Module(Base):
     SIMILARITY_THRESHOLD = 0.5
@@ -272,6 +274,9 @@ class Module(Base):
     
     @staticmethod
     def getByCode(session, code):
-        return session.query(Module).filter(
-            Module.code.like(code.upper() + '%')
-        ).one()
+        try:
+            return session.query(Module).filter(
+                Module.code.like(code.upper() + '%')
+            ).one()
+        except NoResultFound:
+            raise NotFound("module", "Module %s not found." % str(code))

@@ -1,7 +1,9 @@
 import project.src.model
 from project.src.model.base import Base
+from project.src.model.exception import NotFound
 from sqlalchemy import Column, Integer, Float, String, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.schema import Table
 from sqlalchemy.dialects import postgresql
 
@@ -47,3 +49,13 @@ class Question(Base):
             threshold = project.src.model.Module.SIMILARITY_THRESHOLD
 
         return filter(lambda s: s.similarity > threshold, self.similar)
+
+    @staticmethod
+    def getByPath(session, paper, path):
+        try:
+            return session.query(Question).filter(
+                (Question.paper_id == paper.id) & \
+                (Question.path == path)
+            ).one()
+        except NoResultFound:
+            raise NotFound("question", "Question with path %s not found." % '.'.join(map(str, path)))

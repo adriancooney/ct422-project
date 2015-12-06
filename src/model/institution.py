@@ -1,5 +1,7 @@
 from project.src.model.base import Base
+from project.src.model.exception import NotFound
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String
 
 class Institution(Base):
@@ -12,4 +14,7 @@ class Institution(Base):
 
     @staticmethod
     def getByCode(session, code):
-        return session.query(Institution).filter(Institution.code == code).one()
+        try:
+            return session.query(Institution).filter(Institution.code == code.upper()).one()
+        except NoResultFound:
+            raise NotFound("institution", "Institution %s not found." % code)

@@ -1,21 +1,38 @@
-{% macro question(_question, first=False) %}
+{% macro question(_question, first=False, edit=None) %}
 <section class="question {% if first %}first{% endif %}" id="Q{{_question.path | join('.')}}">
+    {% set editing = (_question is sameas edit) %}
     <header>
         <h4 class="index index-question"><span class="dot"></span> <a href="#Q{{_question.path | join('.')}}">{{_question.pretty_path[-1]}}</a></h4>
     </header>
     {% if _question.content and _question.content | trim %}
     <div class="content">
-        <p>{{_question.content | replace("\uFFFD", "")}}</p>
-        {% set similar = _question.get_similar() %}
-        {% if (similar | length) > 1%}
-            <div class="similar">
-            {%- for __question in (similar | sort(reverse=True, attribute='similarity')) -%}
-                {% if __question.question.id != _question.id and loop.index < 5 %}
-                    <h4 class="index index-similar"><a href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period)}}#Q{{__question.question.path | join(".")}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a></h4>
-                {% endif %}
-            {%- endfor -%}
-            <h4 class="index index-similar"><a href="#">View all</a></h4>
-            </div>
+        {% if editing %}
+            <form>
+                <textarea>{{_question.content | replace("\uFFFD", "") }}</textarea>
+                <div class="right">
+                    <a class="button button-cancel" href="{{ url_for('get_paper', module=_question.paper.module.code, period=_question.paper.period, year=_question.paper.year_start, format='html') }}">Cancel</a>
+                    <input type="submit" value="Save" class="button">
+                </div>
+            </form>
+        {% else %}
+            <p>{{_question.content | replace("\uFFFD", "")}}</p>
+        {% endif %}
+        {% if not editing %}
+        <div class="detail">
+            <span><a class="button button-inactive button-edit" href="{{ url_for('get_edit_question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, question=(_question.path | join('.')))}}#Q{{_question.path | join(".")}}">Edit</a></span>
+
+            {% set similar = _question.get_similar() %}
+            {% if (similar | length) > 1%}
+                <div class="similar">
+                {%- for __question in (similar | sort(reverse=True, attribute='similarity')) -%}
+                    {% if __question.question.id != _question.id and loop.index < 5 %}
+                        <a class="button button-active" href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period)}}#Q{{__question.question.path | join(".")}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a>
+                    {% endif %}
+                {%- endfor -%}
+                <a class="button button-active" href="#">View all</a>
+                </div>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
     {% endif %}
@@ -23,7 +40,7 @@
     {% if _question.children | length > 0 %}
     <div class="children">
         {% for __question in _question.children | sort(attribute='path') %}
-            {{ question(__question, first=loop.first) }}
+            {{ question(__question, first=loop.first, edit=edit) }}
         {% endfor %}
     </div>
     {% endif %}

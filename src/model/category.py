@@ -1,5 +1,7 @@
 from project.src.model.base import Base
+from project.src.model.exception import NotFound
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey
 
 class Category(Base):
@@ -13,4 +15,7 @@ class Category(Base):
 
     @staticmethod
     def getByCode(session, code):
-        return session.query(Category).filter(Category.code == code.upper()).one()
+        try:
+            return session.query(Category).filter(Category.code == code.upper()).one()
+        except NoResultFound:
+            raise NotFound("category", "Category %s not found." % code)
