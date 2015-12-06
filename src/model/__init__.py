@@ -6,4 +6,5 @@ from paper_pdf import PaperPDF
 from question import Question
 from index import Index
 from visitor import Visitor
+from revision import Revision
 from base import Base

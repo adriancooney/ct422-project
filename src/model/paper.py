@@ -102,11 +102,13 @@ class Paper(Base):
             # TODO: Discuss: should we insert questions into the database without content (i.e. just keep the indices)?
             self.questions = Paper.parse_pages(pages[1:])
         except:
+            exc_class, exc, tb = sys.exc_info()
+
             # Save the indexing information
             self.save()
 
             # Re-raise
-            raise sys.exc_info()
+            raise exc_class, exc, tb
 
         # If it got this far, it means no UnparseableException has been
         # raised and we've parsed the paper!
@@ -346,7 +348,7 @@ class Paper(Base):
 
             # Save the text
             if last_question != None:
-                last_question.content = pages[marker:start]
+                last_question.set_content(None, pages[marker:start])
                 last_question = None
                 marker = end
             elif marker == 0:
@@ -356,7 +358,7 @@ class Paper(Base):
 
         # Squeeze out that last part
         if last_question:
-            last_question.content = pages[marker:]
+            last_question.set_content(None, pages[marker:])
 
         # Test to see if we have any data returned. For now,
         # we'll assume it's "unparsable" if not content if found.

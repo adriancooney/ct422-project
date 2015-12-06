@@ -67,13 +67,11 @@ textarea {
 
 .center { text-align: center; }
 .right { text-align: right; }
+.faded { color: rgba(0,0,0,0.3); }
+.padded { padding: 16px; }
 
 article {
     padding: 12px;
-
-    .faded {
-        color: rgba(0,0,0,0.3);
-    }
 
     h1 {
         font-size: 200%;
@@ -149,6 +147,8 @@ article {
 }
 
 .footer {
+    margin-top: 30px;
+
     p {
         font-size: 80%;
         color: darken($theme-light-grey, 20%);
@@ -188,6 +188,20 @@ article {
             padding-top: 10px;
             font-size: 124%;
         }
+    }
+
+    h5 {
+        $color: lighten($theme-blue, 30%);
+        text-align: center;
+        font-size: 150%;
+        font-weight: 500;
+        font-family: $font-display;
+        color: $theme-blue;
+        border-top: 2px solid $color;
+        border-bottom: 2px solid #fff;
+        box-shadow: 0 -2px 0 #fff, 0 2px 0 $color;
+        margin: 40px 30%;
+        padding: 8px;
     }
 }
 
@@ -337,7 +351,19 @@ a.dot {
     &.index-similar {
         background-color: $theme-similar;
         border-color: darken($theme-similar, 15%);
-        color: darken($theme-similar, 30%)
+        color: darken($theme-similar, 30%);
+
+        .dot {
+            background-color: darken($theme-similar, 30%);
+        }
+    }
+
+    .path {
+        margin-right: 4px;
+    }
+
+    .path:last-child {
+        margin-right: 0;
     }
 }
 
@@ -392,17 +418,31 @@ a.dot {
         justify-content: flex-start;
         margin-top: 12px;
 
-        .controls {
+        .button {
             margin-right: 8px;
         }
 
         .similar {
             .button {
                 opacity: 0.6;
+                margin-right: 4px;
 
                 &:hover {
                     opacity: 1;
                 }
+            }
+        }
+
+        p {
+            color: darken($theme-active, 15%);
+            font-size: 80%;
+            padding: 4px 0;
+
+            a {
+                color: inherit;
+                text-decoration: underline;
+
+                &:hover { border: none; }
             }
         }
     }

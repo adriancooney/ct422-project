@@ -70,33 +70,14 @@ class Module(Base):
         self.vectorize()
 
         for question in self.questions:
-            question.similar = self.find_similar_questions(question)
+
+            question.similar = filter(lambda q: q.question != question and q.similarity > Module.SIMILARITY_THRESHOLD, 
+                self.find_similar_questions(question))
+
             session.add(question)
 
         session.add(self)
         session.commit()
-
-    def to_dict(self):
-        data = {}
-
-        # First of all, organize the papers by year
-        for paper in self.papers:
-            # Skip papers that we couldn't parse
-            if not paper.contents:
-                continue
-
-            year = str(paper.year_start)
-
-            # We use year start as the key
-            if not year in data:
-                data[year] = []
-
-            data[year].append(paper.contents)
-
-        return { self.code: data }
-
-    def to_JSON(self):
-        return json.dumps(self.to_dict(), indent=4)
 
     def __repr__(self):
         return "<Module(id={}, code={}, papers={})>".format(self.id, self.code, len(self.papers))
@@ -202,54 +183,7 @@ class Module(Base):
         # Generate the similarity object
         return [Similar(question=q, similarity=s) for q, s in zip(self.questions, similarity)]
 
-    def similarity_analysis(self, paper):
-        """Perform a similarity analysis over all the questions in paper"""
-        analysis = []
-
-        # Get all the questions in the paper
-        for question in paper.questions:
-            logging.info("Perform similarity analysis on question %r '%s..'" % (question, question.content[:30]))
-
-            # Find similar questions for this specific questions within all the papers
-            similar_questions = self.find_similar_questions(question)
-
-            # Only select questions over similarity threshold
-            similar_relevant = similar_questions[similar_questions.similarity > Module.SIMILARITY_THRESHOLD].sort(
-                "similarity", ascending=False)
-
-            papers = []
-            for i, row in similar_relevant.iterrows():
-                relevant_question = row.question
-
-                # Prevent similarity analysis on same paper
-                if relevant_question.paper == paper:
-                    continue
-
-                data = {
-                    'paper': relevant_question.paper,
-                    'similarity': row.similarity,
-                    'question': relevant_question
-                }
-
-                papers.append(data)
-
-            # Sort them
-            papers.sort(key=lambda p: p["paper"].year_start)
-
-            ordered_papers = OrderedDict()
-            for key, group in groupby(papers, lambda p: p["paper"].year_start):
-                ordered_papers[key] = [record for record in group]
-
-            breakdown = {
-                'question': question,
-                'papers': ordered_papers
-            }
-
-            analysis.append(breakdown)
-
-        return analysis
-
-    def find_most_popular_questions(self):
+    def get_popular_questions(self):
         """Find the most popular questions. 
 
         This loops through all the questions, find's the similar questions
@@ -257,12 +191,19 @@ class Module(Base):
         """
         session = Session.object_session(self)
 
-        questions = session.query(Similar.question_id, func.sum(Similar.similarity).label("cum_similarity")).filter(
-            (Similar.similarity > Module.SIMILARITY_THRESHOLD) & \
-            (Similar.question_id == Similar.similar_question_id)
-        ).group_by(Similar.question_id).join(Question, Similar.question_id == Question.id).all()
+        # exam_papers=# select question_id, sum(similarity) as similarity from similar_questions 
+        #   where similarity > 0.6 and question_id != similar_question_id 
+        #   group by question_id order by similarity DESC;
 
-        print questions
+        popular = (session.query(Similar.question_id.label("question_id"), func.sum(Similar.similarity).label("cum_similarity")
+            ).group_by(Similar.question_id)).subquery()
+
+        questions = session.query(Question, popular.c.cum_similarity
+            ).join(popular, Question.id == popular.c.question_id
+            ).order_by(popular.c.cum_similarity.desc()
+            ).limit(25)
+
+        return questions.all()
 
     def is_indexed(self):
         """Determine whether a module is indexed or not."""
@@ -275,8 +216,6 @@ class Module(Base):
     @staticmethod
     def getByCode(session, code):
         try:
-            return session.query(Module).filter(
-                Module.code.like(code.upper() + '%')
-            ).one()
+            return session.query(Module).filter(Module.code.like(code.upper() + '%')).one()
         except NoResultFound:
             raise NotFound("module", "Module %s not found." % str(code))

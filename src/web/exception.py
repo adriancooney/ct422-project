@@ -5,4 +5,4 @@ class HttpException(Exception):
 
 class MissingParameter(HttpException):
     def __init__(self, name, type="POST"):
-        HttpException.__init__(400, "Missing %s parameter %s." % (type, name))
+        HttpException.__init__(self, 400, "Missing %s parameter \"%s\"." % (type, name))

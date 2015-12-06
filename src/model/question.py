@@ -1,5 +1,6 @@
 import project.src.model
 from project.src.model.base import Base
+from project.src.model.revision import Revision
 from project.src.model.exception import NotFound
 from sqlalchemy import Column, Integer, Float, String, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
@@ -29,6 +30,13 @@ class Question(Base):
     pretty_path = Column(postgresql.ARRAY(String))
     __table_args__ = (UniqueConstraint('paper_id', 'path'),)
 
+    current_revision_id = Column(Integer, ForeignKey('revision.id'))
+    revision = relationship("Revision", secondary=Table('question_revision', Base.metadata,
+        Column('question_id', Integer, ForeignKey('question.id')),
+        Column('revision_id', Integer, ForeignKey('revision.id'))
+    ), uselist=False)
+    revisions = relationship("Revision", foreign_keys=[Revision.question_id])
+
     def __init__(self, index):
         self.path = map(lambda i: i.i, index)
         self.pretty_path = map(lambda i: str(i), index)
@@ -48,6 +56,20 @@ class Question(Base):
             threshold = project.src.model.Module.SIMILARITY_THRESHOLD
 
         return filter(lambda s: s.similarity > threshold, self.similar)
+
+    @property
+    def content(self):
+        if self.revision:
+            return self.revision.content
+
+    @property
+    def joined_path(self):
+        return '.'.join(map(str, self.path))
+    
+    def set_content(self, vistor, content):
+        revision = Revision(vistor, content)
+        self.revisions.append(revision)
+        self.revision = revision
 
     @staticmethod
     def getByPath(session, paper, path):

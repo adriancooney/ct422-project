@@ -1,61 +1,154 @@
-{% macro question(_question, first=False, edit=None) %}
-<section class="question {% if first %}first{% endif %}" id="Q{{_question.path | join('.')}}">
-    {% set editing = (_question is sameas edit) %}
-    {% set has_content = (_question.content and _question.content | trim) %}
-    <header>
-        <h4 class="index index-question"><span class="dot"></span> <a href="#Q{{_question.path | join('.')}}">{{_question.pretty_path[-1]}}</a></h4>
-        {% if not has_content %}{{ question_controls(_question) }}{% endif %}
-    </header>
-    {% if has_content or editing%}
+{% macro question(_question, first=False, edit=None, controls=True, show_children=True,
+    full_path=False, expand_similar=True, index=None, similar=None) %}
+
+    {% set is_editing = (_question is sameas edit) %}
+
+    {% call question_wrapper(_question, first=first, edit=edit, controls=controls,
+        show_children=show_children, full_path=full_path, similar=similar, index=index,
+        expand_similar=expand_similar) %}
+
+        {% if (_question.content and _question.content | trim) or is_editing %}
+            {{ question_content(_question, controls=controls, editing=is_editing, expand_similar=expand_similar) }}
+        {% endif %}
+    {% endcall %}
+{% endmacro %}
+
+{% macro question_content(_question, controls=True, editing=False, expand_similar=False) %}
     <div class="content">
         {% if editing %}
-            <form method="POST" url="{{ url_for('get_edit_question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, question=(_question.path | join('.')))}}#Q{{_question.path | join('.')}}">
-                <textarea name="content">{% if _question.content %}{{_question.content | replace("\uFFFD", "") }}{% endif %}</textarea>
-                <div class="grid">
-                    <div class="grid-flex">
-                        <a class="button button-cancel" href="#">Delete Question</a>
-                        <a class="button button-active" href="#">View History</a>
-                        <a class="button" href="#">Add Question</a>
-                    </div>
-                    <div class="grid-flex right">
-                        <a class="button button-cancel" href="{{ url_for('get_paper', module=_question.paper.module.code, period=_question.paper.period, year=_question.paper.year_start, format='html') }}">Cancel</a>
-                        <input type="submit" value="Save" class="button">
-                    </div>
-                </div>
-            </form>
+            {{ question_edit(_question) }}
         {% else %}
             <p>{{_question.content | replace("\uFFFD", "")}}</p>
             <div class="detail">
-                {{ question_controls(_question) }}
+                {% if controls %}
+                    {{ question_controls(_question) }}
+                {% endif %}
 
                 {% set similar = _question.get_similar() %}
-                {% if (similar | length) > 1%}
+
+                {% if (similar | length) > 1 and not expand_similar %}
                     <div class="similar">
-                    {%- for __question in (similar | sort(reverse=True, attribute='similarity')) -%}
-                        {% if __question.question.id != _question.id and loop.index < 5 %}
-                            <a class="button button-active" href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period, format='html')}}#Q{{__question.question.path | join('.')}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a>
-                        {% endif %}
-                    {%- endfor -%}
-                    <a class="button button-active" href="#">View all</a>
+                        {%- for __question in (similar | sort(reverse=True, attribute='similarity')) -%}
+                            {% if __question.question.id != _question.id and loop.index < 5 -%}
+                                <a class="button button-active" href="{{url_for('get_paper', module=__question.question.paper.module.code, year=__question.question.paper.year_start, period=__question.question.paper.period, format='html')}}#Q{{__question.question.joined_path}}">{{__question.question.paper.get_short_period()}} {{__question.question.paper.year_start}} {{ __question.question.pretty_path | join(" ")}} ({{ "%.f" | format(__question.similarity * 100) }}%)</a>
+                            {%- endif %}
+                        {%- endfor -%}
+                        <a class="button button-active" href="{{ url_for('question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, action='similar', question=_question.joined_path)}}#Q{{_question.joined_path}}">View all</a>
                     </div>
                 {% endif %}
             </div>
         {% endif %}
     </div>
-    {% endif %}
-
-    {% if _question.children | length > 0 %}
-    <div class="children">
-        {% for __question in _question.children | sort(attribute='path') %}
-            {{ question(__question, first=loop.first, edit=edit) }}
-        {% endfor %}
-    </div>
-    {% endif %}
-</section>
 {% endmacro %}
 
-{% macro question_controls(question) %}
+{% macro question_edit(_question) %}
+    {% set joined_question_path = _question.path | join('.') %}
+    <form method="POST" url="{{ url_for('question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, action='edit', question=_question.joined_path)}}#Q{{_question.joined_path}}">
+        <textarea name="content">{% if _question.content %}{{_question.content | replace("\uFFFD", "") }}{% endif %}</textarea>
+        <div class="grid">
+            <div class="grid-flex">
+                {% if not _question.children %}
+                    <a class="button button-cancel" href="#">Delete Question</a>
+                {% endif %}
+                
+                <a class="button button-active" href="{{ url_for('question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, action='history', question=_question.joined_path)}}">View History</a>
+            </div>
+            <div class="grid-flex right">
+                <a class="button button-cancel" href="{{ url_for('get_paper', module=_question.paper.module.code, period=_question.paper.period, year=_question.paper.year_start, format='html') }}">Cancel</a>
+                <input type="submit" value="Save" class="button">
+            </div>
+        </div>
+    </form>
+{% endmacro %}
+
+{% macro question_history(_question) %}
+    {% call question_wrapper(_question, controls=False, show_children=False, full_path=True) %}
+        {% for revision in _question.revisions | sort(attribute='created_at', reverse=True) %}
+            <div class="content">
+                <p>{% if revision.content %}{{revision.content}}{% else %}<span class="faded">Text content emptied.</span>{% endif %}</p>
+                <div class="detail">
+                    {% if revision is not sameas _question.revision %}
+                        <a class="button button-active" href="{{ url_for('question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, action='revert', question=_question.joined_path, revision=revision.id)}}">Revert</a>
+                    {% endif %}
+                    {% if revision.visitor %}
+                        <p>Change made by <span>{{revision.visitor.ip }}</span> on {{revision.created_at | format_date}}</p>
+                    {% else %}
+                        <p>Content extracted from <a href="{{url_for('get_paper', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, format='pdf')}}">PDF</a> on {{revision.created_at | format_date}}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+        <div class="center faded padded">
+            <p>This question has no history.</p>
+        </div>
+        {% endfor %}
+    {% endcall %}
+{% endmacro %}
+
+{% macro question_wrapper(_question, first=False, edit=None, similar=None, controls=True, 
+    show_children=True, full_path=False, index=None) %}
+
+    {% if not index %}
+        {% set index = question_index(_question, full_path) %}
+    {% endif %}
+
+    <section class="question {% if first %}first{% endif %}" id="Q{{_question.path | join('.')}}">
+        <header>
+            {{ index }}
+
+            {% if controls and not (_question.content and _question.content | trim) %}
+                {{ question_controls(_question) }}
+            {% endif %}
+        </header>
+
+        {{ caller() }}
+
+        {% set expand_similar = (similar is sameas _question) %}
+
+        {% if show_children and (_question.children | length > 0) or expand_similar %}
+            <div class="children">
+                {% if expand_similar %}
+                    {% for similar in _question.get_similar() %}
+                        {{ question(similar.question, controls=False, first=loop.first, expand_similar=True, index=question_index(similar.question, full_path=True, paper=True)) }}
+                    {% endfor %}
+                {% endif %}
+                
+                {% if show_children and (_question.children | length > 0) %}
+                    {% for __question in _question.children | sort(attribute='path') %}
+                        {{ question(__question, first=loop.first, edit=edit, controls=controls, similar=similar) }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endmacro %}
+
+{% macro question_index(_question, full_path=False, paper=False) %}
+    {%- if full_path -%}
+        {% set path %}
+            {% for path in _question.pretty_path %}<span class="path">{{path}}</span>{% endfor %}
+        {% endset %}
+    {%- else -%}
+        {% set path = _question.pretty_path[-1] %}
+    {% endif -%}
+
+    <h4 class="index index-{% if paper %}similar{% else %}question{% endif %}"><span class="dot"></span> {% if paper -%}
+        <a href="url_for('get_paper', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, format='html')}}#Q{{_question.joined_path}}">{{_question.paper.get_short_period()}} {{_question.paper.year_start}} {{ path | safe }}</a>
+    {%- else -%}
+        <a href="#Q{{_question.joined_path}}">{{ path | safe }}</a>
+    {%- endif %}</h4>
+{% endmacro %}
+
+{% macro question_controls(_question) %}
 <div class="controls">
-    <a class="button button-inactive button-edit" href="{{ url_for('get_edit_question', module=question.paper.module.code, year=question.paper.year_start, period=question.paper.period, question=(question.path | join('.')))}}#Q{{question.path | join('.')}}">Edit</a>
+    <a class="button button-inactive button-edit" href="{{ url_for('question', module=_question.paper.module.code, year=_question.paper.year_start, period=_question.paper.period, action='edit', question=_question.joined_path)}}#Q{{question.joined_path}}">Edit</a>
 </div>
+{% endmacro %}
+
+{% macro paper(questions, edit=None, similar=None) %}
+    <div class="paper">
+        {% for _question in questions %}
+            {{ question(_question, first=first, edit=edit, similar=similar) }}
+        {% endfor %}
+    </div>
 {% endmacro %}

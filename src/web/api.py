@@ -1,10 +1,11 @@
 import flask
 import logging
 import os.path
+from babel.dates import format_datetime
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from project.src.web.exception import HttpException, MissingParameter
-from project.src.model import Module, Paper, Category, Institution, Question, Visitor
+from project.src.model import Module, Paper, Category, Institution, Question, Visitor, Revision
 from project.src.model.exception import NotFound, InvalidInput
 from project.src.config import Session, APP_PORT, APP_HOST, APP_DEBUG, APP_LOG
 
@@ -38,7 +39,10 @@ def get_module(module):
     if not module.is_indexed():
         return fail(403, "Module {} has not been indexed yet.".format(module.code))
 
-    return flask.render_template('module.html', module=module)
+    # Get the popular questions
+    popular = module.get_popular_questions()
+
+    return flask.render_template('module.html', module=module, popular=popular)
 
 @app.route('/module/<module>/<year>/<period>/', defaults={'format': 'html'})
 @app.route('/module/<module>/<year>/<period>.pdf', defaults={'format': 'pdf' })
@@ -52,10 +56,10 @@ def get_paper(module, year, period, format):
 
         return flask.redirect(paper.link)
     else:
-        return flask.render_template('module.html', module=module, paper=paper)
+        return flask.render_template('module_paper.html', module=module, paper=paper)
 
-@app.route('/module/<module>/<year>/<period>/edit', methods=['get', 'post'])
-def get_edit_question(module, year, period):
+@app.route('/module/<module>/<year>/<period>/<action>', methods=['get', 'post'])
+def question(module, year, period, action):
     module = Module.getByCode(session, module)
     paper = Paper.find(session, module, year, period)
 
@@ -67,16 +71,37 @@ def get_edit_question(module, year, period):
     question_path = map(int, question_path.split("."))
     question = Question.getByPath(session, paper, question_path)
 
-    if flask.request.method == "POST":
-        question.content = flask.request.form["content"]
+    if action == 'edit':
+        if flask.request.method == "POST":
+            question.set_content(flask.g.visitor, flask.request.form["content"])
 
+            session.add(question)
+            session.commit()
+
+            return flask.redirect(flask.url_for('get_paper', 
+                module=module.code, year=paper.year_start, period=paper.period, format="html") + "#Q" + '.'.join(map(str, question.path)))
+        else:
+            return flask.render_template('module_paper.html', module=module, paper=paper, edit_question=question)
+    elif action == 'history':
+        return flask.render_template('module_history.html', module=module, paper=paper, question=question)
+    elif action == 'revert':
+        revision_id = int(flask.request.args.get('revision'))
+
+        if not revision_id:
+            raise MissingParameter('revision', type='query')
+
+        # Find the revision with a new query instead of loading
+        # all revisions.
+        revision = Revision.findById(session, revision_id)
+
+        question.set_content(flask.g.visitor, revision.content)
         session.add(question)
         session.commit()
 
-        return flask.redirect(flask.url_for('get_paper', 
-            module=module.code, year=paper.year_start, period=paper.period, format="html") + "#Q" + '.'.join(map(str, question.path)))
-    else:
-        return flask.render_template('module.html', module=module, paper=paper, edit_question=question)
+        return flask.redirect(flask.url_for('question', module=module.code, year=paper.year_start, period=paper.period, action="history", question=question.joined_path))
+    elif action == 'similar':
+        return flask.render_template('module_paper.html', module=module, paper=paper, similar_question=question)
+
 
 @app.route("/modules/<category>/")
 def list_category_modules(category):
@@ -105,6 +130,10 @@ def handle_invalid_input(error):
 @app.errorhandler(HttpException)
 def handle_http_exception(error):
     return fail(error.status_code, error.message)
+
+@app.template_filter('format_date')
+def format_date_filter(time):
+    return format_datetime(time)
 
 if __name__ == '__main__':
     if APP_LOG:

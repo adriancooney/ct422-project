@@ -38,10 +38,14 @@ textarea {
 .right {
   text-align: right; }
 
+.faded {
+  color: rgba(0, 0, 0, 0.3); }
+
+.padded {
+  padding: 16px; }
+
 article {
   padding: 12px; }
-  article .faded {
-    color: rgba(0, 0, 0, 0.3); }
   article h1 {
     font-size: 200%;
     margin: 18px; }
@@ -92,14 +96,16 @@ article {
     font-size: 140%;
     font-family: "Avenir Next"; }
 
-.footer p {
-  font-size: 80%;
-  color: #afafaf; }
-  .footer p a {
-    color: inherit;
-    text-decoration: underline; }
-    .footer p a:hover {
-      border: none; }
+.footer {
+  margin-top: 30px; }
+  .footer p {
+    font-size: 80%;
+    color: #afafaf; }
+    .footer p a {
+      color: inherit;
+      text-decoration: underline; }
+      .footer p a:hover {
+        border: none; }
 
 .container {
   width: 940px;
@@ -119,6 +125,17 @@ article {
     text-align: right;
     padding-top: 10px;
     font-size: 124%; }
+.module h5, .modules h5 {
+  text-align: center;
+  font-size: 150%;
+  font-weight: 500;
+  font-family: "Avenir Next";
+  color: #418EE5;
+  border-top: 2px solid #c8def7;
+  border-bottom: 2px solid #fff;
+  box-shadow: 0 -2px 0 #fff, 0 2px 0 #c8def7;
+  margin: 40px 30%;
+  padding: 8px; }
 
 .module .error {
   margin-top: 60px; }
@@ -230,6 +247,12 @@ a.dot.current {
     background-color: #B0E57C;
     border-color: #8ad83c;
     color: #63a721; }
+    .index.index-similar .dot {
+      background-color: #63a721; }
+  .index .path {
+    margin-right: 4px; }
+  .index .path:last-child {
+    margin-right: 0; }
 
 .question {
   border: 4px solid #E5E5E5;
@@ -262,12 +285,22 @@ a.dot.current {
     display: flex;
     justify-content: flex-start;
     margin-top: 12px; }
-    .question .detail .controls {
+    .question .detail .button {
       margin-right: 8px; }
     .question .detail .similar .button {
-      opacity: 0.6; }
+      opacity: 0.6;
+      margin-right: 4px; }
       .question .detail .similar .button:hover {
         opacity: 1; }
+    .question .detail p {
+      color: #8ad83c;
+      font-size: 80%;
+      padding: 4px 0; }
+      .question .detail p a {
+        color: inherit;
+        text-decoration: underline; }
+        .question .detail p a:hover {
+          border: none; }
   .question .question {
     border: none;
     margin-left: 18px;

@@ -17,6 +17,6 @@ class Visitor(Base):
 
     def __init__(self, request):
         self.ip = str(request.remote_addr)
-        self.referer = request.headers['Referer']
-        self.browser = request.headers['User-Agent']
+        self.referer = request.headers.get('Referer')
+        self.browser = request.headers.get('User-Agent')
         self.url = request.url
