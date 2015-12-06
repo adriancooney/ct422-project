@@ -27,7 +27,6 @@ class Question(Base):
     paper_id = Column(Integer, ForeignKey("paper.id"))
     path = Column(postgresql.ARRAY(Integer))
     pretty_path = Column(postgresql.ARRAY(String))
-    content = Column(Text)
     __table_args__ = (UniqueConstraint('paper_id', 'path'),)
 
     def __init__(self, index):

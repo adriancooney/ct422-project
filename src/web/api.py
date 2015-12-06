@@ -4,7 +4,7 @@ import os.path
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from project.src.web.exception import HttpException, MissingParameter
-from project.src.model import Module, Paper, Category, Institution, Question
+from project.src.model import Module, Paper, Category, Institution, Question, Visitor
 from project.src.model.exception import NotFound, InvalidInput
 from project.src.config import Session, APP_PORT, APP_HOST, APP_DEBUG, APP_LOG
 
@@ -14,6 +14,21 @@ session = Session()
 def fail(code, message):
     """Fail a request in a standard way."""
     return flask.render_template('error.html', code=code, message=message), code
+
+@app.before_request
+def visit():
+    # Log incoming visitors to database
+    # Ignore all static requests
+    if app.static_url_path in flask.request.url:
+        return
+
+    # Save the visitor
+    visitor = Visitor(flask.request)
+    session.add(visitor)
+    session.commit()
+
+    # Add them to the context
+    flask.g.visitor = visitor
 
 @app.route('/module/<module>/')
 def get_module(module):
