@@ -65,10 +65,8 @@ textarea {
     min-height: 120px;
 }
 
-form, article {
-    .center { text-align: center; }
-    .right { text-align: right; }
-}
+.center { text-align: center; }
+.right { text-align: right; }
 
 article {
     padding: 12px;
@@ -88,6 +86,14 @@ article {
     }
 }
 
+.grid {
+    display: flex;
+
+    .grid-flex {
+        flex: 1;
+    }
+}
+
 .button {
     border: 3px solid darken($theme-action, 8%);
     background: $theme-action;
@@ -98,6 +104,7 @@ article {
     font-family: $font-reading;
     text-decoration: underline;
     cursor: pointer;
+    display: inline-block;
 
     &.button-active {
         background: $theme-active;
@@ -141,6 +148,22 @@ article {
     }
 }
 
+.footer {
+    p {
+        font-size: 80%;
+        color: darken($theme-light-grey, 20%);
+
+        a { 
+            color: inherit;
+            text-decoration: underline;
+
+            &:hover {
+                border: none;
+            }
+        }
+    }
+}
+
 .container {
     width: 940px;
     margin: 0 auto;
@@ -164,10 +187,6 @@ article {
             text-align: right;
             padding-top: 10px;
             font-size: 124%;
-        }
-
-        a:hover {
-            border-bottom: none;
         }
     }
 }
@@ -334,7 +353,7 @@ a.dot {
 
     header {
         margin: 0;
-        margin-top: -15px;
+        margin-top: -18px;
         margin-left: -15px;
         margin-bottom: 12px;
         font-size: 100%;
@@ -344,15 +363,17 @@ a.dot {
 
         .index a {
             color: inherit;
-
-            &:hover { border: none }
         }
 
-        .button {
-            opacity: 0.5;
+        .controls {
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+            align-items: center;
+            margin-left: 8px;
 
-            &:hover {
-                opacity: 1;
+            .button {
+                margin-right: 4px;
             }
         }
     }
@@ -371,7 +392,7 @@ a.dot {
         justify-content: flex-start;
         margin-top: 12px;
 
-        .button-edit {
+        .controls {
             margin-right: 8px;
         }
 

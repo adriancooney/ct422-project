@@ -39,7 +39,7 @@ def get_paper(module, year, period, format):
     else:
         return flask.render_template('module.html', module=module, paper=paper)
 
-@app.route('/module/<module>/<year>/<period>/edit', methods=['get'])
+@app.route('/module/<module>/<year>/<period>/edit', methods=['get', 'post'])
 def get_edit_question(module, year, period):
     module = Module.getByCode(session, module)
     paper = Paper.find(session, module, year, period)
@@ -52,8 +52,16 @@ def get_edit_question(module, year, period):
     question_path = map(int, question_path.split("."))
     question = Question.getByPath(session, paper, question_path)
 
-    return flask.render_template('module.html', module=module, paper=paper, edit_question=question)
+    if flask.request.method == "POST":
+        question.content = flask.request.form["content"]
 
+        session.add(question)
+        session.commit()
+
+        return flask.redirect(flask.url_for('get_paper', 
+            module=module.code, year=paper.year_start, period=paper.period, format="html") + "#Q" + '.'.join(map(str, question.path)))
+    else:
+        return flask.render_template('module.html', module=module, paper=paper, edit_question=question)
 
 @app.route("/modules/<category>/")
 def list_category_modules(category):

@@ -32,9 +32,10 @@ textarea {
   outline: none;
   min-height: 120px; }
 
-form .center, article .center {
+.center {
   text-align: center; }
-form .right, article .right {
+
+.right {
   text-align: right; }
 
 article {
@@ -48,6 +49,11 @@ article {
     font-size: 140%;
     margin: 12px 0; }
 
+.grid {
+  display: flex; }
+  .grid .grid-flex {
+    flex: 1; }
+
 .button {
   border: 3px solid #1e79df;
   background: #418EE5;
@@ -57,7 +63,8 @@ article {
   font-size: 70%;
   font-family: "Kefa";
   text-decoration: underline;
-  cursor: pointer; }
+  cursor: pointer;
+  display: inline-block; }
   .button.button-active {
     background: #B0E57C;
     border-color: #96dd51;
@@ -85,6 +92,15 @@ article {
     font-size: 140%;
     font-family: "Avenir Next"; }
 
+.footer p {
+  font-size: 80%;
+  color: #afafaf; }
+  .footer p a {
+    color: inherit;
+    text-decoration: underline; }
+    .footer p a:hover {
+      border: none; }
+
 .container {
   width: 940px;
   margin: 0 auto; }
@@ -103,8 +119,6 @@ article {
     text-align: right;
     padding-top: 10px;
     font-size: 124%; }
-  .module header a:hover, .modules header a:hover {
-    border-bottom: none; }
 
 .module .error {
   margin-top: 60px; }
@@ -223,7 +237,7 @@ a.dot.current {
   padding: 0; }
   .question header {
     margin: 0;
-    margin-top: -15px;
+    margin-top: -18px;
     margin-left: -15px;
     margin-bottom: 12px;
     font-size: 100%;
@@ -232,12 +246,14 @@ a.dot.current {
     justify-content: flex-start; }
     .question header .index a {
       color: inherit; }
-      .question header .index a:hover {
-        border: none; }
-    .question header .button {
-      opacity: 0.5; }
-      .question header .button:hover {
-        opacity: 1; }
+    .question header .controls {
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
+      margin-left: 8px; }
+      .question header .controls .button {
+        margin-right: 4px; }
   .question .content {
     padding: 6px 12px 12px 12px; }
     .question .content p {
@@ -246,7 +262,7 @@ a.dot.current {
     display: flex;
     justify-content: flex-start;
     margin-top: 12px; }
-    .question .detail .button-edit {
+    .question .detail .controls {
       margin-right: 8px; }
     .question .detail .similar .button {
       opacity: 0.6; }
