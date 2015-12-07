@@ -195,13 +195,18 @@ class Module(Base):
         #   where similarity > 0.6 and question_id != similar_question_id 
         #   group by question_id order by similarity DESC;
 
-        popular = (session.query(Similar.question_id.label("question_id"), func.sum(Similar.similarity).label("cum_similarity")
-            ).group_by(Similar.question_id)).subquery()
+        popular = (session.query(
+            Similar.question_id.label("question_id"), 
+            func.sum(Similar.similarity).label("cum_similarity")
+        ).group_by(Similar.question_id)).subquery()
 
-        questions = session.query(Question, popular.c.cum_similarity
-            ).join(popular, Question.id == popular.c.question_id
-            ).order_by(popular.c.cum_similarity.desc()
-            ).limit(25)
+        questions = session.query(
+            Question
+        ).join(popular, Question.id == popular.c.question_id
+        ).join(Paper, Paper.id == Question.paper_id
+        ).filter(Paper.module_id == self.id
+        ).order_by(popular.c.cum_similarity.desc()
+        ).limit(25)
 
         return questions.all()
 

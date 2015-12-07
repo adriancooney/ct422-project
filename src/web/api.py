@@ -54,7 +54,7 @@ def get_module(module):
     # Get the popular questions
     popular = module.get_popular_questions()
 
-    for q, sim in popular:
+    for q in popular:
         setattr(q, 'view_single', True)
 
     return flask.render_template('module.html', module=module, popular=popular)
