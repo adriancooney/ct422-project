@@ -494,7 +494,7 @@ a.dot {
         }
     }
 
-    &.direct {
+    &.similar {
         background-color: lighten($theme-similar, 25%);
 
         .content p {

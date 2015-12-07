@@ -1,22 +1,22 @@
-{% macro main(question, first, direct=False) %}
-    {% call wrapper(question, first, direct) %}
+{% macro main(question, first) %}
+    {% call wrapper(question, first) %}
         {% if question.content or question.view_edit %}
-            {{ content(question, direct) }}
+            {{ content(question) }}
         {% endif %}
     {% endcall %}
 {% endmacro %}
 
-{% macro content(question, direct) %}
+{% macro content(question) %}
     <div class="content">
         {% if question.view_edit %}
             {{ edit(question) }}
         {% else %}
             <p>{{question.content}}</p>
 
-            {% if not direct %}
+            {% if not question.view_similar_expanded_question %}
                 <div class="detail">
                     {# Display controls if we have a content body #}
-                    {% if question.content %}
+                    {% if question.content and not question.view_single %}
                         {{ controls(question) }}
                     {% endif %}
 
@@ -64,7 +64,7 @@
                 <p>{% if revision.content %}{{revision.content}}{% else %}<span class="faded">Text content emptied.</span>{% endif %}</p>
                 <div class="detail">
                     {% if revision is not sameas question.revision %}
-                        <a class="button button-active" href="{{ question | question_action('revert', revision=revision.id)}}">Revert</a>
+                        <a class="button button-active" href="{{ question | question_action('revert', revision=revision.id, direct=False)}}">Revert</a>
                     {% endif %}
 
                     {% if revision.visitor %}
@@ -82,10 +82,10 @@
     {% endcall %}
 {% endmacro %}
 
-{% macro wrapper(question, first, direct) %}
-    <section class="question {% if first %}first{% endif %} {% if direct %}direct{% endif %}" id="Q{{question.joined_path}}">
+{% macro wrapper(question, first) %}
+    <section class="question {% if first %}first{% endif %} {% if question.view_similar_expanded_question %}similar{% endif %}" id="Q{{question.joined_path}}">
         <header>
-            {{ index(question, direct) }}
+            {{ index(question) }}
 
             {% if not question.content %}
                 {{ controls(question) }}
@@ -98,11 +98,11 @@
         {% set has_children = (question.children | length > 0) %}
         {% set has_similar = (question.view_similar_expanded and similar | length > 0) %}
 
-        {% if not direct or (has_children or has_similar) %}
+        {% if not question.view_similar_expanded_question and not question.view_history and (has_children or has_similar) %}
             <div class="children">
                 {% if has_similar %}
                     {% for sim in question.get_similar() %}
-                        {{ main(sim.question, loop.first, True) }}
+                        {{ main(sim.question, loop.first) }}
                     {% endfor %}
                 {% endif %}
                 
@@ -116,16 +116,24 @@
     </section>
 {% endmacro %}
 
-{% macro index(question, direct) %}
-    {% if question.view_history or direct %}
+{% macro index(question, full) %}
+    {% if question.view_history or question.view_similar_expanded_question or question.view_single %}
         {% set path %}
-            {% if direct %}{{question.paper.period}} {{question.paper.year}}{% endif %} {{ question.pretty_path | join(" ") }}
+            {% if question.view_similar_expanded_question %}{{question.paper.period}} {{question.paper.year}}{% endif %} {{ question.pretty_path | join(" ") }}
         {% endset %}
     {% else %}
         {% set path = question.pretty_path[-1] %}
     {% endif %}
 
-    <h4 class="index index-{% if direct %}similar{% else %}question{% endif %}"><span class="dot"></span><a href="#Q{{question.joined_path}}">{{ path | safe }}</a></h4>
+    {% if question.view_similar_expanded_question %}
+        {% set url = question | question_link %}
+    {% else %}
+        {% set url -%}
+            #Q{{question.joined_path}}}
+        {% endset %}
+    {% endif %}
+
+    <h4 class="index index-{% if question.view_similar_expanded_question %}similar{% else %}question{% endif %}"><span class="dot"></span><a href="{{url}}">{{ path | safe }}</a></h4>
 {% endmacro %}
 
 {% macro controls(question) %}

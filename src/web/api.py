@@ -31,6 +31,18 @@ def visit():
     # Add them to the context
     flask.g.visitor = visitor
 
+@app.after_request
+def after_request(res):
+    # TODO: Find a solution to this
+    # Sane templating requires the use of setattr
+    # for object and SQL Alchemy state management
+    # stores object persistently across queries.
+    # Bad news. It fucks up the views. We need expire
+    # everything every request (DEAR LORD) or find a solution
+    session.expire_all()
+
+    return res
+
 @app.route('/module/<module>/')
 def get_module(module):
     module = Module.getByCode(session, module)
@@ -41,6 +53,9 @@ def get_module(module):
 
     # Get the popular questions
     popular = module.get_popular_questions()
+
+    for q, sim in popular:
+        setattr(q, 'view_single', True)
 
     return flask.render_template('module.html', module=module, popular=popular)
 
@@ -104,6 +119,9 @@ def question(module, year, period, action):
         # Set the edit flag to expanded
         setattr(question, 'view_edit', True)
     elif action == 'similar':
+        for q in question.get_similar():
+            setattr(q.question, 'view_similar_expanded_question', True)
+
         # Set the flag to the question
         setattr(question, 'view_similar_expanded', True)
 

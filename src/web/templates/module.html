@@ -33,8 +33,8 @@
     {% block module_content %}
         {% if popular %}
             <h5>Popular questions in {{module.code}}</h5>
-            {% for question, similarity in popular %}
-                {{ question.main(question, first=loop.first) }}
+            {% for _question, similarity in popular %}
+                {{ question.main(_question, first=loop.first) }}
             {% endfor %}
         {% else %}
             <article>

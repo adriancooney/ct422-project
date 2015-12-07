@@ -55,12 +55,12 @@ class Question(Base):
         if not threshold:
             threshold = project.src.model.Module.SIMILARITY_THRESHOLD
 
-        return filter(lambda s: s.similarity > threshold, self.similar)
+        return filter(lambda s: s.similarity > threshold and s.question.id != self.id, self.similar)
 
     @property
     def content(self):
         if self.revision:
-            return self.revision.content.replace(u"\uFFFD", '')
+            return self.revision.content.replace(u"\uFFFD", '').strip()
 
     @property
     def joined_path(self):
@@ -70,6 +70,24 @@ class Question(Base):
         revision = Revision(vistor, content)
         self.revisions.append(revision)
         self.revision = revision
+
+    def is_parent(self, question):
+        """Test whether a question is a descendent of self."""
+        if question.parent is self:
+            return True
+
+        # Compare paths
+        if len(self.path) >= question.path:
+            # If their path is equal to or shorter than our path
+            #  they cannot possible be a descendant
+            return False
+
+        if self.path != question.path[len(self.path)]:
+            # If the first indices of the path are not
+            # the same, this is not a parent
+            return False
+
+        return True
 
     @staticmethod
     def getByPath(session, paper, path):
