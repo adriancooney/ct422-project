@@ -98,7 +98,7 @@
         {% set has_children = (question.children | length > 0) %}
         {% set has_similar = (question.view_similar_expanded and similar | length > 0) %}
 
-        {% if not question.view_similar_expanded_question and not question.view_history and (has_children or has_similar) %}
+        {% if not question.view_similar_expanded_question and not question.view_history and not question.view_single and (has_children or has_similar) %}
             <div class="children">
                 {% if has_similar %}
                     {% for sim in question.get_similar() %}
