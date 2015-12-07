@@ -1,0 +1,19 @@
+@font-face {
+	font-family: 'Avn';
+	src: url('avn-Bold.eot');
+	src: url('avn-Bold.eot?#iefix') format('embedded-opentype'),
+		url('avn-Bold.woff') format('woff'),
+		url('avn-Bold.ttf') format('truetype');
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Avn';
+	src: url('avn-Regular.eot');
+	src: url('avn-Regular.eot?#iefix') format('embedded-opentype'),
+		url('avn-Regular.woff') format('woff'),
+		url('avn-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
