@@ -1,7 +1,10 @@
+@import 'font/kfa/stylesheet.css';
+@import 'font/avn/stylesheet.css';
+
 * { box-sizing: border-box }
 
-$font-reading: "Kefa";
-$font-display: "Avenir Next";
+$font-reading: "Kfa";
+$font-display: "Avn";
 
 $theme-light-grey: #E2E2E2;
 $theme-grey: #777;
