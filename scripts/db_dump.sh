@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DATE=`date +%d%m%Y`
+DATE=`date +%d%m%Y-%H%M`
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$DIR/../data/dumps/"
