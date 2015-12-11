@@ -150,6 +150,49 @@ article {
   background-color: #B0E57C;
   border-radius: 6px; }
 
+.tabs header {
+  margin: 0;
+  display: flex; }
+  .tabs header nav {
+    flex: 1;
+    display: flex;
+    margin: 0;
+    width: 100%; }
+    .tabs header nav li {
+      min-width: 100px;
+      margin: 0;
+      list-style: none;
+      font-size: 60%;
+      padding: 4px 18px;
+      border-top-right-radius: 12px;
+      border-top-left-radius: 12px;
+      text-align: center;
+      font-family: "Avn";
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer; }
+      .tabs header nav li a {
+        color: inherit;
+        border: none; }
+    .tabs header nav .tab-active {
+      background: #fff;
+      color: #000; }
+      .tabs header nav .tab-active:after {
+        display: block;
+        position: absolute;
+        width: 4px; }
+      .tabs header nav .tab-active + li {
+        border-bottom-left-radius: 12px;
+        box-shadow: 0 5px 0 #fff; }
+    .tabs header nav .before-tab-active {
+      border-bottom-right-radius: 12px;
+      box-shadow: 0 5px 0 #fff; }
+  .tabs header h4 {
+    font-size: 60%;
+    font-weight: bold;
+    font-family: "Avn";
+    color: rgba(0, 0, 0, 0.3);
+    padding: 6px; }
+
 .papers table {
   width: 100%; }
   .papers table tr th, .papers table tr td {
@@ -337,9 +380,8 @@ a.dot.current {
     background-color: #f0fae6; }
     .question.similar .content p {
       color: #315210; }
-
-:target {
-  background-color: #ebf3fc; }
+  .question:target {
+    background-color: #ebf3fc; }
 
 .error-page .error {
   margin-top: 240px; }

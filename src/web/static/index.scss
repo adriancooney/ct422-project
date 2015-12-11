@@ -9,15 +9,18 @@ $font-display: "Avn";
 $theme-light-grey: #E2E2E2;
 $theme-grey: #777;
 $theme-blue: #418EE5;
+$theme-light-blue: #B4D8E7;
+$theme-grey-blue: #7DA0CB;
 $theme-green: #B0E57C;
 $theme-orange: #F5A623;
 $theme-red: #FFAEAE;
+$theme-yellow: #FFF0AA;
 
 $theme-border-radius: 8px;
 
-$theme-unindexed: #B4D8E7;
+$theme-unindexed: $theme-light-blue;
 $theme-unavailable: $theme-red;
-$theme-unparseable: darken(#FFF0AA, 10%);
+$theme-unparseable: darken($theme-yellow, 10%);
 $theme-available: $theme-green;
 $theme-similar: $theme-green;
 $theme-question: $theme-blue;
@@ -26,6 +29,10 @@ $theme-action: $theme-blue;
 $theme-active: $theme-green;
 $theme-inactive: $theme-light-grey;
 $theme-cancel: $theme-red;
+
+$theme-information: $theme-yellow;
+$theme-statistics: lighten($theme-green, 8%);
+$theme-papers: lighten($theme-blue, 32%);
 
 body {
     font-family: $font-reading, sans-serif;
@@ -224,6 +231,83 @@ article {
     .indexed {
         background-color: $theme-available;
         border-radius: 6px;
+    }
+}
+
+.tabs {
+    header {
+        margin: 0;
+        display: flex;
+
+        nav {
+            flex: 1;
+            display: flex;
+            margin: 0;
+            width: 100%;
+
+            li {
+                min-width: 100px;
+                margin: 0;
+                list-style: none;
+                font-size: 60%;
+                padding: 4px 18px;
+                border-top-right-radius: 12px;
+                border-top-left-radius: 12px;
+                text-align: center;
+                font-family: $font-display;
+                color: rgba(0, 0, 0, 0.5);
+                cursor: pointer;
+
+                a {
+                    color: inherit;
+                    border: none;
+                }
+
+                // Uncommet below if we want the tabs to have a resting
+                // color.
+                // background: rgba(0,0,0,0.05);
+                // box-shadow: 0 -2px 0 rgba(0,0,0,0.03);
+                // &:last-child:not(.tab-active) { margin-right: 5px; }
+                // &:first-child:not(.tab-active) { margin-left: 5px; }
+            }
+
+            // .tab-papers { background-color: $theme-papers;  }
+            // .tab-statistics { background-color: $theme-statistics; }
+            // .tab-information { background-color: $theme-information; }
+
+            .tab-active {
+                background: #fff;
+                color: #000;
+
+                &:after {
+                    display: block;
+                    position: absolute;
+                    width: 4px;
+                }
+
+                & + li { // Wow look how easy this is for the tab after .active
+                    border-bottom-left-radius: 12px;
+                    box-shadow: 0 5px 0 #fff;
+                }
+            }
+
+            .before-tab-active {
+                // Wow, look how I have to ADD A FUCKING CLASS BECAUSE YOU 
+                // CAN'T SELECT THE PREVIOUS ELEMENT IN CSS. WHY WHAT THE
+                // FUCK HOW COME I CAN SELECT THE NEXT BUT NOT THE PREVIOUS
+                
+                border-bottom-right-radius: 12px;
+                box-shadow: 0 5px 0 #fff;
+            }
+        }
+
+        h4 {
+            font-size: 60%;
+            font-weight: bold;
+            font-family: $font-display;
+            color: rgba(0,0,0,0.3);
+            padding: 6px;
+        }
     }
 }
 
@@ -504,10 +588,10 @@ a.dot {
             color: darken($theme-similar, 50%);
         }
     }
-}
 
-:target {
-    background-color: lighten($theme-blue, 38%);
+    &:target {
+        background-color: lighten($theme-blue, 38%);
+    }
 }
 
 .error-page {
