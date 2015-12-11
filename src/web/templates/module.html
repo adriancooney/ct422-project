@@ -9,26 +9,90 @@
         <h2><strong><a href="{{url_for('get_institution', institution=module.category.institution.code)}}">{{module.category.institution.code}}</a></strong>/<a href="{{ url_for('list_category_modules', category=module.category.code) }}">{{module.category.code}}</a>/<a href="{{ url_for('get_module', module=module.code) }}">{{module.code | replace(module.category.code, "") }}</a></h2>
         <h3>{{module.name}}</h3>
     </header>
-    <section class="papers">
-        <table>
-            <tr><th>Paper</th>{% for year in range(2005, 2015) %}<th>{{year}}</th>{% endfor %}</tr>
-            {% set papers = module.get_grouped_papers() %}
-            {% for period, group in papers | dictsort | reverse %}    
-                <tr><td>{{period}}</td>{% for year in range(2005, 2015) -%}
-                    {% set _paper = group[year] %}
+    <div class="tabs">
+        <header>
+            {% set links = { 'papers': '#', 'layout': '#', 'stats': '#' } %}
+            {% set keys = ['papers', 'layout', 'stats'] %} {# To retain order #}
+            {% set current_page = 'papers' %}
+            <nav>
+                {%- for page in keys -%}
+                    <li class="tab-{{page}}"><a href="#">{{page | capitalize}}</a></li>
+                {%- endfor -%}
+            </nav>
+        </header>
+        <section id="tab-papers" class="papers">
+            <table>
+                <tr><th>Paper</th>{% for year in range(2005, 2015) %}<th>{{year}}</th>{% endfor %}</tr>
+                {% set papers = module.get_grouped_papers() %}
+                {% for period, group in papers | dictsort | reverse %}    
+                    <tr><td>{{period}}</td>{% for year in range(2005, 2015) -%}
+                        {% set _paper = group[year] %}
 
-                    <td>{% if not _paper -%}
-                        <span class="dot"></span>
-                    {%- else -%}
-                        {% set status = _paper.get_status() %}
-                        {% set current = paper and _paper is sameas paper %}
-                        {% if current and status != 'unavailable' %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
-                        <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, format=format)}}" {% if format == 'pdf' %}target="_blank" title="View PDF"{% endif %}></a>
-                    {%- endif %}</td>
-                {%- endfor %}</tr>
-            {% endfor %}
-        </table>
-    </section>
+                        <td>{% if not _paper -%}
+                            <span class="dot"></span>
+                        {%- else -%}
+                            {% set status = _paper.get_status() %}
+                            {% set current = paper and _paper is sameas paper %}
+                            {% if current and status != 'unavailable' %}{% set format = 'pdf' %}{% else %}{% set format = 'html' %}{% endif %}
+                            <a data-status="{{status | capitalize }}" class="dot {{ status }} {% if current %}current{% endif %}" href="{{url_for('get_paper', module=module.code, year=year, period=period, format=format)}}" {% if format == 'pdf' %}target="_blank" title="View PDF"{% endif %}></a>
+                        {%- endif %}</td>
+                    {%- endfor %}</tr>
+                {% endfor %}
+            </table>
+        </section>
+        <section id="tab-layout">
+        Layout.
+        </section>
+        <section id="tab-stats">
+            Stats.
+        </section>
+
+        <script type="text/javascript">
+        // Going against everything I believe in with inlining a script but
+        // it will do until we React-ify this app.
+        (function() {
+            var tabs = document.querySelector(".tabs");
+
+            function getTab(name) { 
+                return { body: tabs.querySelector("#tab-" + name), header: tabs.querySelector("nav .tab-" + name) } 
+            }
+
+            function highlight(tab) {
+                tab.header.classList.add("tab-active");
+                if(tab.header.previousSibling) tab.header.previousSibling.classList.add("before-tab-active");
+                tab.body.style.display = "block";
+            }
+
+            function unhighlight(tab) {
+                tab.header.classList.remove("tab-active");
+                if(tab.header.previousSibling) tab.header.previousSibling.classList.remove("before-tab-active");
+                tab.body.style.display = "none";
+            }
+
+            var currentTab;
+            function select(tab) {
+                if(currentTab) unhighlight(currentTab);
+                highlight(tab);
+                currentTab = tab;
+            }
+
+            var bar = ["papers", "layout", "stats"].map(getTab)
+
+            // Bind the click listener
+            bar.forEach(function(tab) { 
+                tab.header.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    select(tab);
+                });
+            });
+
+            // Hide all but papers
+            bar.slice(1).forEach(unhighlight)
+            // Set the default tab
+            select(bar[0]);
+        })();
+        </script>
+    </div>
 
     {% block module_content %}
         {% if popular %}
