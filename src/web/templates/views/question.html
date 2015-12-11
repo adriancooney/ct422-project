@@ -26,7 +26,7 @@
                         <div class="similar">
                             {%- for sim in (similar | sort(reverse=True, attribute='similarity')) -%}
                                 {% if sim.question.id != question.id and loop.index < 5 -%}
-                                    <a class="button button-active" href="{{ question | question_link }}">{{sim.question.paper.short_period}} {{sim.question.paper.year_start}} {{sim.question.pretty_path | join(" ")}} ({{ "%.f" | format(sim.similarity * 100) }}%)</a>
+                                    <a class="button button-active" href="{{ sim.question | question_link }}">{{sim.question.paper.short_period}} {{sim.question.paper.year_start}} {{sim.question.pretty_path | join(" ")}} ({{ "%.f" | format(sim.similarity * 100) }}%)</a>
                                 {%- endif %}
                             {%- endfor -%}
                             <a class="button button-active" href="{{ question | question_action('similar') }}">View all</a>

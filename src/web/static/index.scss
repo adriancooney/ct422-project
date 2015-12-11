@@ -30,8 +30,8 @@ $theme-active: $theme-green;
 $theme-inactive: $theme-light-grey;
 $theme-cancel: $theme-red;
 
-$theme-layout: $theme-yellow;
-$theme-stats: lighten($theme-green, 8%);
+$theme-information: $theme-yellow;
+$theme-statistics: lighten($theme-green, 8%);
 $theme-papers: lighten($theme-blue, 32%);
 
 body {
@@ -237,23 +237,23 @@ article {
 .tabs {
     header {
         margin: 0;
+        display: flex;
 
         nav {
+            flex: 1;
             display: flex;
             margin: 0;
             width: 100%;
 
             li {
-                flex: 1;
+                min-width: 100px;
                 margin: 0;
                 list-style: none;
                 font-size: 60%;
-                padding: 4px 12px;
-                background: rgba(0,0,0,0.05);
+                padding: 4px 18px;
                 border-top-right-radius: 12px;
                 border-top-left-radius: 12px;
                 text-align: center;
-                box-shadow: 0 -2px 0 rgba(0,0,0,0.03);
                 font-family: $font-display;
                 color: rgba(0, 0, 0, 0.5);
                 cursor: pointer;
@@ -263,13 +263,17 @@ article {
                     border: none;
                 }
 
-                &:last-child:not(.tab-active) { margin-right: 5px; }
-                &:first-child:not(.tab-active) { margin-left: 5px; }
+                // Uncommet below if we want the tabs to have a resting
+                // color.
+                // background: rgba(0,0,0,0.05);
+                // box-shadow: 0 -2px 0 rgba(0,0,0,0.03);
+                // &:last-child:not(.tab-active) { margin-right: 5px; }
+                // &:first-child:not(.tab-active) { margin-left: 5px; }
             }
 
-            .tab-papers { background-color: $theme-papers;  }
-            .tab-layout { background-color: $theme-layout; }
-            .tab-stats { background-color: $theme-stats; }
+            // .tab-papers { background-color: $theme-papers;  }
+            // .tab-statistics { background-color: $theme-statistics; }
+            // .tab-information { background-color: $theme-information; }
 
             .tab-active {
                 background: #fff;
@@ -283,7 +287,7 @@ article {
 
                 & + li { // Wow look how easy this is for the tab after .active
                     border-bottom-left-radius: 12px;
-                    box-shadow: 0 5px 0 #fff, 0 -2px 0 rgba(0,0,0,0.03);
+                    box-shadow: 0 5px 0 #fff;
                 }
             }
 
@@ -293,8 +297,16 @@ article {
                 // FUCK HOW COME I CAN SELECT THE NEXT BUT NOT THE PREVIOUS
                 
                 border-bottom-right-radius: 12px;
-                box-shadow: 0 5px 0 #fff, 0 -2px 0 rgba(0,0,0,0.03);
+                box-shadow: 0 5px 0 #fff;
             }
+        }
+
+        h4 {
+            font-size: 60%;
+            font-weight: bold;
+            font-family: $font-display;
+            color: rgba(0,0,0,0.3);
+            padding: 6px;
         }
     }
 }

@@ -11,14 +11,18 @@
     </header>
     <div class="tabs">
         <header>
-            {% set links = { 'papers': '#', 'layout': '#', 'stats': '#' } %}
-            {% set keys = ['papers', 'layout', 'stats'] %} {# To retain order #}
+            {% set keys = ['papers', 'information', 'statistics'] %}
             {% set current_page = 'papers' %}
             <nav>
                 {%- for page in keys -%}
                     <li class="tab-{{page}}"><a href="#">{{page | capitalize}}</a></li>
                 {%- endfor -%}
             </nav>
+        
+
+            {% if paper %}
+                <h4>{{paper.period}} {{paper.year}}</h4>
+            {% endif %}
         </header>
         <section id="tab-papers" class="papers">
             <table>
@@ -40,16 +44,23 @@
                 {% endfor %}
             </table>
         </section>
-        <section id="tab-layout">
-        Layout.
+        <section id="tab-information">
+            <p>The paper's layout (i.e. answer three our of five questions.). Authors involved in the writing. Classes.</p>
+            <p>Amount of questions, links and solutions. How active the module is.</p>
         </section>
-        <section id="tab-stats">
-            Stats.
+        <section id="tab-statistics">
+            <p>Statistics about paper's questions here.</p>
+            <ul>
+                <li>The amount of questions in the paper in total.</li>
+                <li>The paper with the least similar questions.</li>
+                <li>How consist the paper is (graph of question similarity count.)</li>
+            </ul>
         </section>
 
         <script type="text/javascript">
         // Going against everything I believe in with inlining a script but
-        // it will do until we React-ify this app.
+        // it will do until we React-ify this app. As bad as this is, CSS
+        // tabs are worse. My god.
         (function() {
             var tabs = document.querySelector(".tabs");
 
@@ -76,7 +87,7 @@
                 currentTab = tab;
             }
 
-            var bar = ["papers", "layout", "stats"].map(getTab)
+            var bar = ["papers", "information", "statistics"].map(getTab)
 
             // Bind the click listener
             bar.forEach(function(tab) { 
